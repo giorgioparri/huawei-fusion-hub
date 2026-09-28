@@ -58,7 +58,7 @@ class HubControlProxyBase:
         self._attr_device_info = DeviceInfo(
             identifiers={(DOMAIN, device)},
             name=DEVICE_NAMES[device],
-            manufacturer="naked-head",
+            manufacturer="giorgioparri",
             entry_type=DeviceEntryType.SERVICE,
             via_device=(DOMAIN, DEVICE_HUB),
         )

@@ -1,13 +1,13 @@
 {
   "domain": "huawei_fusion_hub",
   "name": "Huawei Fusion Hub",
-  "codeowners": ["@naked-head"],
+  "codeowners": ["@giorgioparri"],
   "config_flow": true,
   "dependencies": [],
-  "documentation": "https://github.com/naked-head/huawei-fusion-hub",
+  "documentation": "https://github.com/giorgioparri/huawei-fusion-hub",
   "integration_type": "hub",
   "iot_class": "calculated",
-  "issue_tracker": "https://github.com/naked-head/huawei-fusion-hub/issues",
+  "issue_tracker": "https://github.com/giorgioparri/huawei-fusion-hub/issues",
   "requirements": [],
-  "version": "0.9.4"
+  "version": "0.9.5"
 }

@@ -6,7 +6,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+## [0.9.5] - 2026-09-28
+
+### Changed
+
+- The project moved to the GitHub username `giorgioparri` (previously `naked-head`): links in the README, documentation, issue tracker and code owner are updated, and the device manufacturer shown in Home Assistant follows. Nothing to do — existing installations keep working and GitHub redirects the old repository URLs.
+
 ### Fixed
+
 - Links to other files in the repository are absolute, so they work in the README rendered by HACS. Relative targets are blanked by Home Assistant's markdown sanitiser, which left the links dead exactly where users read the page.
 
 ## [0.9.4] - 2026-08-29
@@ -86,7 +93,7 @@ The hub gains its first derived sensors: how long until the battery is full, and
 > If your own measurements disagree, that is useful information and worth
 > opening an issue about. Deriving the factor per installation, from the
 > battery's own daily counters, instead of shipping a constant is tracked in
-> [#7](https://github.com/naked-head/huawei-fusion-hub/issues/7).
+> [#7](https://github.com/giorgioparri/huawei-fusion-hub/issues/7).
 
 For reference, on that plant:
 
@@ -229,19 +236,20 @@ Home Assistant 2026.8 promoted entity ID renaming to a first-class action in the
 - Options flow to change priority and alert behavior without restart.
 - English and Italian translations.
 
-[Unreleased]: https://github.com/naked-head/huawei-fusion-hub/compare/v0.9.4...HEAD
-[0.9.4]: https://github.com/naked-head/huawei-fusion-hub/compare/v0.9.3...v0.9.4
-[0.9.3]: https://github.com/naked-head/huawei-fusion-hub/compare/v0.9.2...v0.9.3
-[0.9.2]: https://github.com/naked-head/huawei-fusion-hub/compare/v0.9.1...v0.9.2
-[0.9.1]: https://github.com/naked-head/huawei-fusion-hub/compare/v0.9.0...v0.9.1
-[0.9.0]: https://github.com/naked-head/huawei-fusion-hub/compare/v0.8.0...v0.9.0
-[0.8.0]: https://github.com/naked-head/huawei-fusion-hub/compare/v0.7.0...v0.8.0
-[0.7.0]: https://github.com/naked-head/huawei-fusion-hub/compare/v0.6.2...v0.7.0
-[0.6.2]: https://github.com/naked-head/huawei-fusion-hub/compare/v0.6.1...v0.6.2
-[0.6.1]: https://github.com/naked-head/huawei-fusion-hub/compare/v0.6.0...v0.6.1
-[0.6.0]: https://github.com/naked-head/huawei-fusion-hub/compare/v0.5.0...v0.6.0
-[0.5.0]: https://github.com/naked-head/huawei-fusion-hub/compare/v0.4.0...v0.5.0
-[0.4.0]: https://github.com/naked-head/huawei-fusion-hub/compare/v0.3.0...v0.4.0
-[0.3.0]: https://github.com/naked-head/huawei-fusion-hub/compare/v0.2.0...v0.3.0
-[0.2.0]: https://github.com/naked-head/huawei-fusion-hub/compare/v0.1.0...v0.2.0
-[0.1.0]: https://github.com/naked-head/huawei-fusion-hub/releases/tag/v0.1.0
+[Unreleased]: https://github.com/giorgioparri/huawei-fusion-hub/compare/v0.9.5...HEAD
+[0.9.5]: https://github.com/giorgioparri/huawei-fusion-hub/compare/v0.9.4...v0.9.5
+[0.9.4]: https://github.com/giorgioparri/huawei-fusion-hub/compare/v0.9.3...v0.9.4
+[0.9.3]: https://github.com/giorgioparri/huawei-fusion-hub/compare/v0.9.2...v0.9.3
+[0.9.2]: https://github.com/giorgioparri/huawei-fusion-hub/compare/v0.9.1...v0.9.2
+[0.9.1]: https://github.com/giorgioparri/huawei-fusion-hub/compare/v0.9.0...v0.9.1
+[0.9.0]: https://github.com/giorgioparri/huawei-fusion-hub/compare/v0.8.0...v0.9.0
+[0.8.0]: https://github.com/giorgioparri/huawei-fusion-hub/compare/v0.7.0...v0.8.0
+[0.7.0]: https://github.com/giorgioparri/huawei-fusion-hub/compare/v0.6.2...v0.7.0
+[0.6.2]: https://github.com/giorgioparri/huawei-fusion-hub/compare/v0.6.1...v0.6.2
+[0.6.1]: https://github.com/giorgioparri/huawei-fusion-hub/compare/v0.6.0...v0.6.1
+[0.6.0]: https://github.com/giorgioparri/huawei-fusion-hub/compare/v0.5.0...v0.6.0
+[0.5.0]: https://github.com/giorgioparri/huawei-fusion-hub/compare/v0.4.0...v0.5.0
+[0.4.0]: https://github.com/giorgioparri/huawei-fusion-hub/compare/v0.3.0...v0.4.0
+[0.3.0]: https://github.com/giorgioparri/huawei-fusion-hub/compare/v0.2.0...v0.3.0
+[0.2.0]: https://github.com/giorgioparri/huawei-fusion-hub/compare/v0.1.0...v0.2.0
+[0.1.0]: https://github.com/giorgioparri/huawei-fusion-hub/releases/tag/v0.1.0
