@@ -1,15 +1,15 @@
 <p align="center">
-      <img src="https://cdn.jsdelivr.net/gh/naked-head/huawei-fusion-hub@HEAD/custom_components/huawei_fusion_hub/brand/icon@2x.png" alt="Huawei Fusion Hub" width="120">
+      <img src="https://cdn.jsdelivr.net/gh/giorgioparri/huawei-fusion-hub@HEAD/custom_components/huawei_fusion_hub/brand/icon@2x.png" alt="Huawei Fusion Hub" width="120">
 </p>
 
 # Huawei Fusion Hub — Home Assistant Custom Integration
 
 [![hacs_badge](https://img.shields.io/badge/HACS-Default-orange.svg)](https://github.com/hacs/default)
-[![GitHub Release](https://img.shields.io/github/release/naked-head/huawei-fusion-hub.svg)](https://github.com/naked-head/huawei-fusion-hub/releases)
-[![Validate](https://github.com/naked-head/huawei-fusion-hub/actions/workflows/validate.yml/badge.svg)](https://github.com/naked-head/huawei-fusion-hub/actions/workflows/validate.yml)
-[![License](https://img.shields.io/github/license/naked-head/huawei-fusion-hub.svg)](https://github.com/naked-head/huawei-fusion-hub/blob/main/LICENSE)
+[![GitHub Release](https://img.shields.io/github/release/giorgioparri/huawei-fusion-hub.svg)](https://github.com/giorgioparri/huawei-fusion-hub/releases)
+[![Validate](https://github.com/giorgioparri/huawei-fusion-hub/actions/workflows/validate.yml/badge.svg)](https://github.com/giorgioparri/huawei-fusion-hub/actions/workflows/validate.yml)
+[![License](https://img.shields.io/github/license/giorgioparri/huawei-fusion-hub.svg)](https://github.com/giorgioparri/huawei-fusion-hub/blob/main/LICENSE)
 
-[![Open your Home Assistant instance and open a repository inside the Home Assistant Community Store.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=naked-head&repository=huawei-fusion-hub&category=integration)
+[![Open your Home Assistant instance and open a repository inside the Home Assistant Community Store.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=giorgioparri&repository=huawei-fusion-hub&category=integration)
 
 A [Home Assistant](https://www.home-assistant.io/) integration that aggregates data from up to three Huawei solar monitoring integrations — **Huawei Solar** (local Modbus), **FusionSolar** (Kiosk/OpenAPI) and **FusionSolarPlus** — into a single, stable set of `sensor.hf_hub_*` entities with automatic priority-based failover.
 
@@ -52,7 +52,7 @@ The integration is in the HACS default catalogue: no custom repository needed.
 
 ### Manual
 
-1. Download the latest [release](https://github.com/naked-head/huawei-fusion-hub/releases/latest)
+1. Download the latest [release](https://github.com/giorgioparri/huawei-fusion-hub/releases/latest)
 2. Copy `custom_components/huawei_fusion_hub` into `/config/custom_components/`
 3. Restart Home Assistant
 
@@ -89,7 +89,7 @@ No restart is needed when changing options.
 
 ## Migrating the Energy Dashboard
 
-If you are switching from the source integrations to Huawei Fusion Hub in the Energy Dashboard and want to preserve your historical statistics, see **[ENERGY_MIGRATION.md](https://github.com/naked-head/huawei-fusion-hub/blob/HEAD/ENERGY_MIGRATION.md)** for a step-by-step guide.
+If you are switching from the source integrations to Huawei Fusion Hub in the Energy Dashboard and want to preserve your historical statistics, see **[ENERGY_MIGRATION.md](https://github.com/giorgioparri/huawei-fusion-hub/blob/HEAD/ENERGY_MIGRATION.md)** for a step-by-step guide.
 
 This procedure renames the existing `statistic_id` entries in the Home Assistant database so the Energy Dashboard sees the hub entities as having the full history from the original source entities. It requires direct SQLite access and is intended for advanced users. If you are not comfortable working with databases from the command line, do not attempt this procedure — start fresh with the hub entities and let the Energy Dashboard build new statistics over time. In any case, the author assumes no responsibility for data loss or any other damage.
 
@@ -97,7 +97,7 @@ This procedure renames the existing `statistic_id` entries in the Home Assistant
 
 ## Exposed entities
 
-The hub exposes **232 canonical sensors** grouped into logical devices. The full correspondence table between hub entities and source entities is in **[ENTITY_MAP.md](https://github.com/naked-head/huawei-fusion-hub/blob/HEAD/ENTITY_MAP.md)**.
+The hub exposes **232 canonical sensors** grouped into logical devices. The full correspondence table between hub entities and source entities is in **[ENTITY_MAP.md](https://github.com/giorgioparri/huawei-fusion-hub/blob/HEAD/ENTITY_MAP.md)**.
 
 | Device | Entities |
 |---|---|
@@ -114,7 +114,7 @@ A hub sensor is created only when at least one configured source provides that q
 
 The FusionSolar column of the map covers both **Kiosk** mode (plant-level sensors) and **Northbound/OpenAPI** mode (per-device realtime data), so the hub takes full advantage of an OpenAPI account when available.
 
-📋 **Full entity correspondence table: [ENTITY_MAP.md](https://github.com/naked-head/huawei-fusion-hub/blob/HEAD/ENTITY_MAP.md)**
+📋 **Full entity correspondence table: [ENTITY_MAP.md](https://github.com/giorgioparri/huawei-fusion-hub/blob/HEAD/ENTITY_MAP.md)**
 
 ---
 
@@ -160,7 +160,7 @@ Under *Settings → Devices & Services → Huawei Fusion Hub → Configure*:
 
 The state of charge is a property of the battery pack, but the power register is measured upstream of the DC conversion, so the two are not the same energy. The rated capacity is therefore scaled by a conversion factor before being divided by the current power.
 
-That factor was calibrated on a single installation — one SUN2000 inverter with a LUNA2000 10 kWh battery — over three weeks and roughly 15000 published estimates. **It is a property of a particular inverter and battery pair, not of this integration**, and it will be wrong to some degree elsewhere. Deriving it per installation, from the battery's own energy counters, is [planned](https://github.com/naked-head/huawei-fusion-hub/issues).
+That factor was calibrated on a single installation — one SUN2000 inverter with a LUNA2000 10 kWh battery — over three weeks and roughly 15000 published estimates. **It is a property of a particular inverter and battery pair, not of this integration**, and it will be wrong to some degree elsewhere. Deriving it per installation, from the battery's own energy counters, is [planned](https://github.com/giorgioparri/huawei-fusion-hub/issues).
 
 On that plant, measured against the SoC rate actually observed over the following 30 minutes: 11% median error discharging and 4% charging while the power was steady, 13% and 17% across all estimates. Treat those as the reason the defaults are what they are, not as a specification for your own system — and if your own measurements disagree, that is worth an issue.
 
@@ -168,7 +168,7 @@ On that plant, measured against the SoC rate actually observed over the followin
 
 ## Entity IDs
 
-Every hub entity is pinned to `sensor.hf_hub_<key>`, where `<key>` is the canonical name listed in [ENTITY_MAP.md](https://github.com/naked-head/huawei-fusion-hub/blob/HEAD/ENTITY_MAP.md). The entity ID is set explicitly rather than derived from the friendly name, so it stays the same whatever your Home Assistant language is, whichever source is currently supplying the value, and however you rename things in the interface.
+Every hub entity is pinned to `sensor.hf_hub_<key>`, where `<key>` is the canonical name listed in [ENTITY_MAP.md](https://github.com/giorgioparri/huawei-fusion-hub/blob/HEAD/ENTITY_MAP.md). The entity ID is set explicitly rather than derived from the friendly name, so it stays the same whatever your Home Assistant language is, whichever source is currently supplying the value, and however you rename things in the interface.
 
 That is the point of the integration: an automation written against `sensor.hf_hub_battery_soc` keeps working when the Modbus connection drops and the value starts arriving from the cloud instead.
 
@@ -226,13 +226,13 @@ A source is marked offline when more than 80% of its mapped entities are `unavai
 
 ## Changelog
 
-See [CHANGELOG.md](https://github.com/naked-head/huawei-fusion-hub/blob/HEAD/CHANGELOG.md) for the full version history.
+See [CHANGELOG.md](https://github.com/giorgioparri/huawei-fusion-hub/blob/HEAD/CHANGELOG.md) for the full version history.
 
 ---
 
 ## License
 
-GPL-3.0-or-later — see [LICENSE](https://github.com/naked-head/huawei-fusion-hub/blob/main/LICENSE)
+GPL-3.0-or-later — see [LICENSE](https://github.com/giorgioparri/huawei-fusion-hub/blob/main/LICENSE)
 
 ## Disclaimer
 

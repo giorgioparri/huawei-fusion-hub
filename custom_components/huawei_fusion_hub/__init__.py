@@ -33,7 +33,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         config_entry_id=entry.entry_id,
         identifiers={(DOMAIN, DEVICE_HUB)},
         name=DEVICE_NAMES[DEVICE_HUB],
-        manufacturer="naked-head",
+        manufacturer="giorgioparri",
         entry_type=DeviceEntryType.SERVICE,
     )
 
@@ -97,7 +97,7 @@ def _async_check_entity_id_drift(hass: HomeAssistant, entry: ConfigEntry) -> Non
             "count": str(len(drifted)),
             "entities": "\n".join(f"- `{item}`" for item in drifted),
         },
-        learn_more_url="https://github.com/naked-head/huawei-fusion-hub#entity-ids",
+        learn_more_url="https://github.com/giorgioparri/huawei-fusion-hub#entity-ids",
     )
 
 

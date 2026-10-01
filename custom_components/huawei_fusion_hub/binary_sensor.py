@@ -43,7 +43,7 @@ class SourceAvailabilitySensor(CoordinatorEntity[HubCoordinator], BinarySensorEn
         self._attr_device_info = DeviceInfo(
             identifiers={(DOMAIN, DEVICE_HUB)},
             name=DEVICE_NAMES[DEVICE_HUB],
-            manufacturer="naked-head",
+            manufacturer="giorgioparri",
             entry_type=DeviceEntryType.SERVICE,
         )
 

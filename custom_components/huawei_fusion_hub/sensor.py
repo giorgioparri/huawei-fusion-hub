@@ -101,7 +101,7 @@ class HubSensor(CoordinatorEntity[HubCoordinator], SensorEntity):
         self._attr_device_info = DeviceInfo(
             identifiers={(DOMAIN, device)},
             name=DEVICE_NAMES[device],
-            manufacturer="naked-head",
+            manufacturer="giorgioparri",
             model="Aggregated device",
             entry_type=DeviceEntryType.SERVICE,
             via_device=(DOMAIN, DEVICE_HUB),
@@ -147,7 +147,7 @@ class HubDerivedSensor(CoordinatorEntity[HubCoordinator], SensorEntity):
         self._attr_device_info = DeviceInfo(
             identifiers={(DOMAIN, DEVICE_BATTERY)},
             name=DEVICE_NAMES[DEVICE_BATTERY],
-            manufacturer="naked-head",
+            manufacturer="giorgioparri",
             model="Aggregated device",
             entry_type=DeviceEntryType.SERVICE,
             via_device=(DOMAIN, DEVICE_HUB),

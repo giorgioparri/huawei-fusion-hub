@@ -34,7 +34,7 @@ TEXTS: dict[str, dict[str, str]] = {
             "down to, from *Settings → Devices & Services → Huawei Fusion Hub → "
             "Configure*.\n\n"
             "[Details in the documentation]"
-            "(https://github.com/naked-head/huawei-fusion-hub"
+            "(https://github.com/giorgioparri/huawei-fusion-hub"
             "#battery-runtime-estimates)"
         ),
     },
@@ -65,7 +65,7 @@ TEXTS: dict[str, dict[str, str]] = {
             "contano, da *Impostazioni → Dispositivi e servizi → Huawei Fusion "
             "Hub → Configura*.\n\n"
             "[Dettagli nella documentazione]"
-            "(https://github.com/naked-head/huawei-fusion-hub"
+            "(https://github.com/giorgioparri/huawei-fusion-hub"
             "#battery-runtime-estimates)"
         ),
     },
