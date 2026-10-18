@@ -181,7 +181,8 @@ def _build() -> list[HubSensorDef]:
            hs="rated_power", fsp=f"{INV}:10006", diagnostic=True))
     d(_def("inverter_p_max", "P max", DI, "power", hs="p_max", diagnostic=True))
     d(_def("pv_input_power", "PV input power", DI, "power",
-           hs="input_power", fsp=f"{PLT}:flow_solar_power", icon="mdi:solar-power",
+           hs=["input_power", "pv_output_power"],
+           fsp=f"{PLT}:flow_solar_power", icon="mdi:solar-power",
            fs=[f"{FS_RINV}:mppt_power", f"{FS_SINV}:mppt_power"]))
     d(_def("inverter_line_voltage_a_b", "Line voltage A-B", DI, "voltage",
            hs="line_voltage_a_b",
@@ -243,7 +244,8 @@ def _build() -> list[HubSensorDef]:
            hs="shutdown_time", fsp=f"{INV}:10028", icon="mdi:clock-end",
            fs=[f"{FS_RINV}:close_time", f"{FS_SINV}:close_time"], diagnostic=True))
     d(_def("inverter_yield_total", "Yield total", DI, "energy",
-           hs="accumulated_yield_energy", fsp=f"{INV}:10029",
+           hs=["accumulated_yield_energy", "inverter_total_energy_yield"],
+           fsp=f"{INV}:10029",
            fs=[f"{FS_RINV}:total_cap", f"{FS_SINV}:total_cap"]))
     d(_def("inverter_total_dc_input_energy", "Total DC input energy", DI,
            "energy", hs="total_dc_input_power"))
@@ -253,7 +255,8 @@ def _build() -> list[HubSensorDef]:
     d(_def("inverter_yield_hour", "Yield this hour", DI, "energy",
            hs="hourly_yield_energy"))
     d(_def("inverter_yield_today", "Yield today", DI, "energy",
-           hs="daily_yield_energy", fsp=f"{INV}:10032",
+           hs=["daily_yield_energy", "inverter_energy_yield_today"],
+           fsp=f"{INV}:10032",
            fs=[f"{FS_RINV}:day_cap", f"{FS_SINV}:day_cap"]))
     d(_def("inverter_yield_month", "Yield this month", DI, "energy",
            hs="monthly_yield_energy"))
@@ -365,24 +368,28 @@ def _build() -> list[HubSensorDef]:
 
     # ---------------- Battery (system) ----------------
     d(_def("battery_soc", "State of charge", DB, "battery",
-           hs="storage_state_of_capacity", fsp=f"{BAT}:10006",
+           hs=["storage_state_of_capacity", "state_of_capacity"],
+           fsp=f"{BAT}:10006",
            fs=[f"{FS_BAT}:battery_soc"]))
     d(_def("battery_power", "Charge/discharge power", DB, "power",
-           hs="storage_charge_discharge_power", fsp=f"{BAT}:10004",
+           hs=["storage_charge_discharge_power", "battery_charge_discharge_power"],
+           fsp=f"{BAT}:10004",
            icon="mdi:battery-charging",
            fs=[f"{FS_BAT}:ch_discharge_power"]))
     d(_def("battery_charged_today", "Charged today", DB, "energy",
-           hs="storage_current_day_charge_capacity", fsp=f"{BAT}:10001",
+           hs=["storage_current_day_charge_capacity", "energy_charged_today"],
+           fsp=f"{BAT}:10001",
            icon="mdi:battery-plus",
            fs=[f"{FS_BAT}:charge_cap"]))
     d(_def("battery_discharged_today", "Discharged today", DB, "energy",
-           hs="storage_current_day_discharge_capacity", fsp=f"{BAT}:10002",
+           hs=["storage_current_day_discharge_capacity", "energy_discharged_today"],
+           fsp=f"{BAT}:10002",
            icon="mdi:battery-minus",
            fs=[f"{FS_BAT}:discharge_cap"]))
     d(_def("battery_total_charge", "Total charge", DB, "energy",
-           hs="storage_total_charge"))
+           hs=["storage_total_charge", "total_charged_energy"]))
     d(_def("battery_total_discharge", "Total discharge", DB, "energy",
-           hs="storage_total_discharge"))
+           hs=["storage_total_discharge", "total_discharged_energy"]))
     d(_def("battery_status", "Status", DB, "text",
            hs="storage_running_status", fsp=f"{BAT}:10003",
            icon="mdi:battery-heart-variant",
@@ -393,7 +400,8 @@ def _build() -> list[HubSensorDef]:
     d(_def("battery_bus_current", "Bus current", DB, "current",
            hs="storage_bus_current"))
     d(_def("battery_rated_capacity", "Rated capacity", DB, "energy_storage",
-           hs="storage_rated_capacity", fsp=f"{BAT}:10013",
+           hs=["storage_rated_capacity", "rated_ess_capacity"],
+           fsp=f"{BAT}:10013",
            icon="mdi:battery-high", diagnostic=True))
     d(_def("battery_max_charge_power", "Maximum charge power", DB, "power",
            hs="storage_maximum_charge_power",
@@ -560,15 +568,19 @@ def _build() -> list[HubSensorDef]:
     d(_def("self_used_energy_today", "Self-used energy today", DP, "energy_total",
            fsp=f"{PLT}:totalSelfUseEnergy", icon="mdi:home-battery"))
     d(_def("consumption_today", "Consumption today", DP, "energy_total",
+           hs="consumption_today",
            fsp=f"{PLT}:dailyUseEnergy", icon="mdi:home-lightning-bolt"))
     d(_def("pv_self_consumption_energy", "PV self-consumption", DP, "energy_total",
            fsp=f"{PLT}:pvSelfConsumptionEnergy"))
     d(_def("pv_feed_in_energy_today", "PV feed-in energy today", DP, "energy",
+           hs="feed_in_to_grid_today",
            fsp=f"{PLT}:totalFeedInEnergy", icon="mdi:transmission-tower-import"))
     d(_def("imported_grid_energy_today", "Imported grid energy today", DP,
-           "energy", fsp=f"{PLT}:totalGridImportEnergy",
+           "energy", hs="supply_from_grid_today",
+           fsp=f"{PLT}:totalGridImportEnergy",
            icon="mdi:transmission-tower-export"))
     d(_def("total_consumption", "Total consumption", DP, "energy_total",
+           hs="total_energy_consumption",
            fsp=f"{PLT}:totalConsumptionEnergy"))
     d(_def("grid_import_ratio", "Grid import ratio", DP, "percent",
            fsp=f"{PLT}:gridImportRatio", icon="mdi:percent"))
