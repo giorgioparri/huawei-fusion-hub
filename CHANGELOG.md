@@ -6,6 +6,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+## [0.9.6] - 2026-10-18
+
+### Fixed
+
+- EMMA (Smart Assistant) hardware uses a distinct Modbus `translation_key` / `unique_id` namespace from classic SUN2000/LUNA2000 devices, so only 2 of 64 EMMA entities were being matched on the Huawei Solar (Modbus) connection. Added the EMMA-specific patterns for battery state of charge/power/charged-discharged-today/totals/rated-capacity, inverter yield today/total, PV input power, and plant-level consumption/feed-in/grid-import/total-consumption, raising coverage to 16/64. Thanks to @HairyPorter23 for reporting this in #14 and sharing the full EMMA entity dump — without that data this fix would not have been possible.
+
 ## [0.9.5] - 2026-09-28
 
 ### Changed
