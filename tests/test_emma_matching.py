@@ -16,9 +16,9 @@ sys.path.insert(
     0, os.path.join(os.path.dirname(__file__), "..", "custom_components")
 )
 
+from huawei_fusion_hub.const import SOURCE_HUAWEI_SOLAR as HS
 from huawei_fusion_hub.coordinator import HubCoordinator
 from huawei_fusion_hub.mapping import SENSOR_DEFS_BY_KEY
-from huawei_fusion_hub.const import SOURCE_HUAWEI_SOLAR as HS
 
 EMMA_UNIQUE_IDS = [
     "BTXXXXXXXXXX_inverter_total_absorbed_energy",
