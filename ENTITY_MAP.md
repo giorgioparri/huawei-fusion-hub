@@ -18,13 +18,23 @@ quantity; single-source entities have no failover but keep a stable name.
 Entity categories follow the source layout: measurements are regular sensors,
 statuses and identifiers are **Diagnostic**, writable proxies are **Configuration**.
 
+**EMMA (Smart Assistant) over Modbus** uses a distinct `translation_key` /
+`unique_id` namespace from classic SUN2000/LUNA2000 hardware for several
+entities (see #14): e.g. `state_of_capacity` instead of
+`storage_state_of_capacity`, `inverter_energy_yield_today` instead of
+`daily_yield_energy`. Rows below with two Huawei Solar patterns list the
+classic pattern first, the EMMA-specific one second. Thanks to
+[@HairyPorter23](https://github.com/HairyPorter23) for reporting this in #14
+and sharing the full EMMA entity dump — without that data this fix would not
+have been possible.
+
 ## Inverter (38 entities)
 
 | Hub entity (`sensor.hf_hub_…`) | Huawei Solar (Modbus) | FusionSolarPlus | FusionSolar |
 |---|---|---|---|
 | `inverter_rated_power` | `rated_power` | `Inverter:10006` | — |
 | `inverter_p_max` | `p_max` | — | — |
-| `pv_input_power` | `input_power` | `Plant:flow_solar_power` | `Residential inverter:mppt_power`, `String inverter:mppt_power` |
+| `pv_input_power` | `input_power`, `pv_output_power` | `Plant:flow_solar_power` | `Residential inverter:mppt_power`, `String inverter:mppt_power` |
 | `inverter_line_voltage_a_b` | `line_voltage_a_b` | — | `Residential inverter:ab_u`, `String inverter:ab_u` |
 | `inverter_line_voltage_b_c` | `line_voltage_b_c` | — | `Residential inverter:bc_u`, `String inverter:bc_u` |
 | `inverter_line_voltage_c_a` | `line_voltage_c_a` | — | `Residential inverter:ca_u`, `String inverter:ca_u` |
@@ -45,11 +55,11 @@ statuses and identifiers are **Diagnostic**, writable proxies are **Configuratio
 | `inverter_status` | `device_status` | `Inverter:10025` | `Residential inverter:inverter_state`, `String inverter:inverter_state` |
 | `inverter_startup_time` | `startup_time` | `Inverter:10027` | `Residential inverter:open_time`, `String inverter:open_time` |
 | `inverter_shutdown_time` | `shutdown_time` | `Inverter:10028` | `Residential inverter:close_time`, `String inverter:close_time` |
-| `inverter_yield_total` | `accumulated_yield_energy` | `Inverter:10029` | `Residential inverter:total_cap`, `String inverter:total_cap` |
+| `inverter_yield_total` | `accumulated_yield_energy`, `inverter_total_energy_yield` | `Inverter:10029` | `Residential inverter:total_cap`, `String inverter:total_cap` |
 | `inverter_total_dc_input_energy` | `total_dc_input_power` | — | — |
 | `inverter_statistics_time` | `current_electricity_generation_statistics_time` | — | — |
 | `inverter_yield_hour` | `hourly_yield_energy` | — | — |
-| `inverter_yield_today` | `daily_yield_energy` | `Inverter:10032` | `Residential inverter:day_cap`, `String inverter:day_cap` |
+| `inverter_yield_today` | `daily_yield_energy`, `inverter_energy_yield_today` | `Inverter:10032` | `Residential inverter:day_cap`, `String inverter:day_cap` |
 | `inverter_yield_month` | `monthly_yield_energy` | — | — |
 | `inverter_yield_year` | `yearly_yield_energy` | — | — |
 | `inverter_state_1` | `state_1` | — | — |
@@ -98,16 +108,16 @@ statuses and identifiers are **Diagnostic**, writable proxies are **Configuratio
 
 | Hub entity (`sensor.hf_hub_…`) | Huawei Solar (Modbus) | FusionSolarPlus | FusionSolar |
 |---|---|---|---|
-| `battery_soc` | `storage_state_of_capacity` | `Battery:10006` | `Battery:battery_soc` |
-| `battery_power` | `storage_charge_discharge_power` | `Battery:10004` | `Battery:ch_discharge_power` |
-| `battery_charged_today` | `storage_current_day_charge_capacity` | `Battery:10001` | `Battery:charge_cap` |
-| `battery_discharged_today` | `storage_current_day_discharge_capacity` | `Battery:10002` | `Battery:discharge_cap` |
-| `battery_total_charge` | `storage_total_charge` | — | — |
-| `battery_total_discharge` | `storage_total_discharge` | — | — |
+| `battery_soc` | `storage_state_of_capacity`, `state_of_capacity` | `Battery:10006` | `Battery:battery_soc` |
+| `battery_power` | `storage_charge_discharge_power`, `battery_charge_discharge_power` | `Battery:10004` | `Battery:ch_discharge_power` |
+| `battery_charged_today` | `storage_current_day_charge_capacity`, `energy_charged_today` | `Battery:10001` | `Battery:charge_cap` |
+| `battery_discharged_today` | `storage_current_day_discharge_capacity`, `energy_discharged_today` | `Battery:10002` | `Battery:discharge_cap` |
+| `battery_total_charge` | `storage_total_charge`, `total_charged_energy` | — | — |
+| `battery_total_discharge` | `storage_total_discharge`, `total_discharged_energy` | — | — |
 | `battery_status` | `storage_running_status` | `Battery:10003` | `Battery:battery_status` |
 | `battery_bus_voltage` | `storage_bus_voltage` | `Battery:10005` | `Battery:busbar_u` |
 | `battery_bus_current` | `storage_bus_current` | — | — |
-| `battery_rated_capacity` | `storage_rated_capacity` | `Battery:10013` | — |
+| `battery_rated_capacity` | `storage_rated_capacity`, `rated_ess_capacity` | `Battery:10013` | — |
 | `battery_max_charge_power` | `storage_maximum_charge_power` | — | `Battery:max_charge_power` |
 | `battery_max_discharge_power` | `storage_maximum_discharge_power` | — | `Battery:max_discharge_power` |
 | `battery_working_mode` | — | `Battery:10008` | `Battery:ch_discharge_model` |
@@ -257,11 +267,11 @@ statuses and identifiers are **Diagnostic**, writable proxies are **Configuratio
 | `plant_energy_total` | — | `Plant:cumulativeEnergy` | `total_lifetime_energy` |
 | `plant_income_today` | — | `Plant:dailyIncome` | — |
 | `self_used_energy_today` | — | `Plant:totalSelfUseEnergy` | — |
-| `consumption_today` | — | `Plant:dailyUseEnergy` | — |
+| `consumption_today` | `consumption_today` | `Plant:dailyUseEnergy` | — |
 | `pv_self_consumption_energy` | — | `Plant:pvSelfConsumptionEnergy` | — |
-| `pv_feed_in_energy_today` | — | `Plant:totalFeedInEnergy` | — |
-| `imported_grid_energy_today` | — | `Plant:totalGridImportEnergy` | — |
-| `total_consumption` | — | `Plant:totalConsumptionEnergy` | — |
+| `pv_feed_in_energy_today` | `feed_in_to_grid_today` | `Plant:totalFeedInEnergy` | — |
+| `imported_grid_energy_today` | `supply_from_grid_today` | `Plant:totalGridImportEnergy` | — |
+| `total_consumption` | `total_energy_consumption` | `Plant:totalConsumptionEnergy` | — |
 | `grid_import_ratio` | — | `Plant:gridImportRatio` | — |
 | `self_consumption_ratio` | — | `Plant:pvSelfConsumptionRatio` | — |
 | `self_consumption_ratio_by_production` | — | `Plant:pvSelfConsumptionRatioByProduction` | — |
