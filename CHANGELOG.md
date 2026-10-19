@@ -6,6 +6,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+## [0.9.7] - 2026-10-19
+
+### Added
+
+- A repair issue on Home Assistant releases older than 2026.8, the minimum the next release will require. HACS will not install that release on an older Home Assistant, so this is the last version that can tell those users about it: it keeps working as it is, and the issue disappears at the first restart after upgrading. See [Home Assistant version support](https://github.com/giorgioparri/huawei-fusion-hub#home-assistant-version-support).
+- German translation of the configuration screens, entity names, repair issues and notifications.
+
 ## [0.9.6] - 2026-10-18
 
 ### Fixed
@@ -242,7 +249,9 @@ Home Assistant 2026.8 promoted entity ID renaming to a first-class action in the
 - Options flow to change priority and alert behavior without restart.
 - English and Italian translations.
 
-[Unreleased]: https://github.com/giorgioparri/huawei-fusion-hub/compare/v0.9.5...HEAD
+[Unreleased]: https://github.com/giorgioparri/huawei-fusion-hub/compare/v0.9.7...HEAD
+[0.9.7]: https://github.com/giorgioparri/huawei-fusion-hub/compare/v0.9.6...v0.9.7
+[0.9.6]: https://github.com/giorgioparri/huawei-fusion-hub/compare/v0.9.5...v0.9.6
 [0.9.5]: https://github.com/giorgioparri/huawei-fusion-hub/compare/v0.9.4...v0.9.5
 [0.9.4]: https://github.com/giorgioparri/huawei-fusion-hub/compare/v0.9.3...v0.9.4
 [0.9.3]: https://github.com/giorgioparri/huawei-fusion-hub/compare/v0.9.2...v0.9.3
