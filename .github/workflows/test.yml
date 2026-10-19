@@ -27,3 +27,5 @@ jobs:
         run: python tests/test_rediscovery.py
       - name: Run derived estimate tests
         run: python tests/test_derived.py
+      - name: Run minimum HA notice tests
+        run: python tests/test_min_ha_notice.py

@@ -4,14 +4,22 @@ from __future__ import annotations
 import logging
 
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.const import Platform
+from homeassistant.const import MAJOR_VERSION, MINOR_VERSION, Platform
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers import device_registry as dr
 from homeassistant.helpers import entity_registry as er
 from homeassistant.helpers import issue_registry as ir
 from homeassistant.helpers.device_registry import DeviceEntryType
 
-from .const import DEVICE_HUB, DEVICE_NAMES, DOMAIN, ISSUE_ENTITY_ID_DRIFT
+from .const import (
+    DEVICE_HUB,
+    DEVICE_NAMES,
+    DOMAIN,
+    ISSUE_ENTITY_ID_DRIFT,
+    ISSUE_HA_MINIMUM,
+    NEXT_MIN_HA_VERSION,
+    ha_below_next_minimum,
+)
 from .coordinator import HubCoordinator
 
 _LOGGER = logging.getLogger(__name__)
@@ -27,6 +35,9 @@ PLATFORMS = [
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
+    # first, so the notice is shown even if the rest of the setup fails
+    _async_check_ha_minimum(hass)
+
     # create the hub device first so sub-devices can reference it via_device
     device_registry = dr.async_get(hass)
     device_registry.async_get_or_create(
@@ -47,6 +58,38 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
     entry.async_on_unload(entry.add_update_listener(_async_update_listener))
     return True
+
+
+@callback
+def _async_check_ha_minimum(hass: HomeAssistant) -> None:
+    """Raise a repair on Home Assistant releases the next version will drop.
+
+    HACS offers an update to every installation, but refuses to download it on
+    a Home Assistant older than the minimum in hacs.json, so those users could
+    never read a notice shipped with that release. This one ships before it:
+    the repair stays until Home Assistant is upgraded, and goes away on the
+    first start after that.
+    """
+    if not ha_below_next_minimum(MAJOR_VERSION, MINOR_VERSION):
+        ir.async_delete_issue(hass, DOMAIN, ISSUE_HA_MINIMUM)
+        return
+
+    ir.async_create_issue(
+        hass,
+        DOMAIN,
+        ISSUE_HA_MINIMUM,
+        is_fixable=False,
+        severity=ir.IssueSeverity.WARNING,
+        translation_key=ISSUE_HA_MINIMUM,
+        translation_placeholders={
+            "version": f"{MAJOR_VERSION}.{MINOR_VERSION}",
+            "minimum": ".".join(str(part) for part in NEXT_MIN_HA_VERSION),
+        },
+        learn_more_url=(
+            "https://github.com/giorgioparri/huawei-fusion-hub"
+            "#home-assistant-version-support"
+        ),
+    )
 
 
 @callback

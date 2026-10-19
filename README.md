@@ -37,7 +37,7 @@ A [Home Assistant](https://www.home-assistant.io/) integration that aggregates d
 - **Initial summary notification**: on first setup, a persistent notification reports how many entities were created, grouped per device and per source.
 - **Optional control aggregation**: switch, select, number and button entities (inverter on/off, battery working mode, power setpoints, forcible charge…) can be proxied through the hub — off by default, with the rationale explained in the config flow.
 - **Native entity categories**: measurements, Diagnostic (statuses, identifiers) and Configuration (control proxies) are separated in each device page, mirroring the source integrations' layout.
-- **Multi-language**: UI and entity names in English and Italian.
+- **Multi-language**: UI, entity names and notifications in English, Italian and German.
 
 ---
 
@@ -65,6 +65,20 @@ At least one of the following integrations must be installed and configured befo
 - [Huawei Solar](https://github.com/wlcrs/huawei_solar) — local Modbus, highest accuracy and frequency
 - [FusionSolar](https://github.com/tijsverkoyen/HomeAssistant-FusionSolar) — cloud Kiosk or Northbound API
 - [FusionSolarPlus](https://github.com/JortvanSchijndel/FusionSolarPlus) — cloud, direct credentials
+
+---
+
+## Home Assistant version support
+
+This release requires Home Assistant **2026.3** or newer. **The next release will require 2026.8 or newer.**
+
+The reason is a change in Home Assistant itself. The way an integration attaches its sub-devices (Inverter, Battery, Power Meter…) to the hub device is being replaced, and the old way stops working in Home Assistant 2027.8. The replacement only exists from 2026.8 onwards, so no single version of the hub can use it and still run on older releases.
+
+If your Home Assistant is older than 2026.8:
+
+- A repair issue in *Settings → System → Repairs* tells you so. It disappears at the first restart after you upgrade.
+- This version keeps working as it is: nothing is removed and no entity changes.
+- HACS will still list the next release as an update, but will refuse to install it until Home Assistant is upgraded.
 
 ---
 
