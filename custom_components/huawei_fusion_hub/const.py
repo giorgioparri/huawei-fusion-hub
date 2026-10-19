@@ -101,6 +101,22 @@ SIGNAL_CONTROLS_CHANGED = f"{DOMAIN}_controls_changed"
 # repair issue raised when a hub entity_id no longer matches its unique_id
 ISSUE_ENTITY_ID_DRIFT = "entity_id_drift"
 
+# repair issue raised on Home Assistant releases older than the minimum the
+# next release will require, so their users hear about it while they can
+# still receive updates
+ISSUE_HA_MINIMUM = "ha_minimum_notice"
+
+# Home Assistant (year, month) the next release will require
+NEXT_MIN_HA_VERSION = (2026, 8)
+
 # storage for one-time flags (suffix: entry_id)
 STORAGE_VERSION = 1
 STORAGE_KEY = f"{DOMAIN}.{{entry_id}}"
+
+
+def ha_below_next_minimum(major: int, minor: int) -> bool:
+    """Return True when Home Assistant is below the next minimum version.
+
+    Releases compare as (year, month), so 2025.12 is below 2026.8.
+    """
+    return (major, minor) < NEXT_MIN_HA_VERSION
