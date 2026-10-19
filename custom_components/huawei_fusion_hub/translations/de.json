@@ -1,0 +1,892 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Quellintegrationen auswählen",
+        "description": "Wähle aus, welche Integrationen der Hub zusammenführen soll. Erkannte Integrationen sind vorausgewählt.",
+        "data": {
+          "sources": "Quellintegrationen"
+        },
+        "data_description": {
+          "sources": "Wähle eine oder mehrere der drei installierten Huawei-Solar-Integrationen aus."
+        }
+      },
+      "priority": {
+        "title": "Priorität der Quellen festlegen",
+        "description": "Ordne die Quellen von der höchsten zur niedrigsten Priorität. Der Hub verwendet immer die verfügbare Quelle mit der höchsten Priorität.",
+        "data": {
+          "priority_0": "Priorität 1 (höchste)",
+          "priority_1": "Priorität 2",
+          "priority_2": "Priorität 3"
+        }
+      },
+      "controls": {
+        "title": "Steuerungsentitäten zusammenführen",
+        "description": "Die Quellintegrationen (Huawei Solar über Modbus) stellen schreibbare Steuerungen bereit: Wechselrichter ein/aus, Betriebsmodus der Batterie, Laden aus dem Netz, Leistungs-Sollwerte, erzwungene Ladung und weitere.\n\n**Wir empfehlen, diese Option AUSGESCHALTET zu lassen.** Steuerungen gibt es nur über die Modbus-Verbindung — es gibt keine Cloud-Entsprechung für ein Failover. Sie zu duplizieren bringt daher keinen Gewinn an Ausfallsicherheit und erzeugt zwei Entitäten, die dasselbe tun, was in Automationen und Dashboards verwirrend sein kann.\n\nAktiviere dies nur, wenn deine Dashboards und Automationen ausschließlich auf `hf_hub`-Entitäten verweisen sollen, einschließlich der Steuerungen. Die Hub-Entitäten (Schalter, Auswahl, Zahl, Schaltfläche) spiegeln den Zustand der Quelle und leiten jeden Befehl an die ursprüngliche Entität weiter.",
+        "data": {
+          "aggregate_controls": "Schalter- und Auswahlentitäten zusammenführen"
+        }
+      },
+      "derived": {
+        "title": "Laufzeitschätzungen der Batterie",
+        "description": "Der Hub kann zwei berechnete Sensoren bereitstellen: die geschätzte Zeit bis zur vollen Ladung und die geschätzte Zeit bis zu einem Reserve-Ladezustand. Sie werden aus der Batterieleistung und dem Ladezustand (SoC) abgeleitet, die der Hub bereits zusammenführt — keine zusätzliche Abfrage. Beides sind Schätzungen: Sie gehen davon aus, dass die aktuelle Lade- oder Entladerate gleich bleibt, ändern sich daher mit den Bedingungen und sind direkt nach einem Neustart von Home Assistant am ungenauesten, solange sich das Stichprobenfenster füllt.",
+        "data": {
+          "derived_sensors": "Laufzeitschätzungen der Batterie erstellen",
+          "reserve_soc": "Mindestladestand",
+          "battery_capacity": "Batteriekapazität (Überschreibung)"
+        },
+        "data_description": {
+          "derived_sensors": "Fügt sensor.hf_hub_battery_estimated_time_to_full und sensor.hf_hub_battery_estimated_time_to_minimum hinzu. Für einen reinen Durchleit-Hub ausschalten.",
+          "reserve_soc": "Die Schätzung zählt bis zu diesem Ladezustand herunter, nicht bis null. Stimme ihn auf den im Wechselrichter eingestellten Entlade-Endzustand (SoC) ab.",
+          "battery_capacity": "Bei 0 wird die Nennkapazität vom Wechselrichter gelesen. Setze nur dann einen Wert, wenn deine Quellen sie nicht liefern, oder um eine Batterie auszugleichen, deren tatsächliche Kapazität mit dem Alter gesunken ist."
+        }
+      }
+    },
+    "error": {
+      "no_sources": "Wähle mindestens eine Quellintegration aus.",
+      "duplicate_priority": "Jede Quelle darf in der Prioritätsliste nur einmal vorkommen."
+    },
+    "abort": {
+      "already_configured": "Huawei Fusion Hub ist bereits konfiguriert."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Optionen für Huawei Fusion Hub",
+        "description": "Füge Quellintegrationen hinzu oder entferne sie und konfiguriere das Benachrichtigungsverhalten. Wenn mehr als eine Quelle ausgewählt ist, wirst du aufgefordert, die Prioritätsreihenfolge festzulegen.",
+        "data": {
+          "sources": "Aktive Quellintegrationen",
+          "notify_on_disconnect": "Benachrichtigen, wenn eine Quelle offline geht"
+        },
+        "data_description": {
+          "sources": "Du kannst Quellen jederzeit hinzufügen oder entfernen. Das Entfernen einer Quelle löscht ihren Beitrag aus dem Hub, ohne die Quellintegration selbst zu beeinträchtigen.",
+          "notify_on_disconnect": "Zeigt eine dauerhafte Benachrichtigung in Home Assistant an, wenn eine Quelle nicht verfügbar wird oder wieder online ist."
+        }
+      },
+      "priority": {
+        "title": "Priorität der Quellen aktualisieren",
+        "description": "Ordne die Quellen von der höchsten zur niedrigsten Priorität. Der Hub verwendet immer die verfügbare Quelle mit der höchsten Priorität.",
+        "data": {
+          "priority_0": "Priorität 1 (höchste)",
+          "priority_1": "Priorität 2",
+          "priority_2": "Priorität 3"
+        }
+      },
+      "controls": {
+        "title": "Steuerungsentitäten zusammenführen",
+        "description": "Die Quellintegrationen (Huawei Solar über Modbus) stellen schreibbare Steuerungen bereit: Wechselrichter ein/aus, Betriebsmodus der Batterie, Laden aus dem Netz, Leistungs-Sollwerte, erzwungene Ladung und weitere.\n\n**Wir empfehlen, diese Option AUSGESCHALTET zu lassen.** Steuerungen gibt es nur über die Modbus-Verbindung — es gibt keine Cloud-Entsprechung für ein Failover. Sie zu duplizieren bringt daher keinen Gewinn an Ausfallsicherheit und erzeugt zwei Entitäten, die dasselbe tun, was in Automationen und Dashboards verwirrend sein kann.\n\nAktiviere dies nur, wenn deine Dashboards und Automationen ausschließlich auf `hf_hub`-Entitäten verweisen sollen, einschließlich der Steuerungen. Die Hub-Entitäten (Schalter, Auswahl, Zahl, Schaltfläche) spiegeln den Zustand der Quelle und leiten jeden Befehl an die ursprüngliche Entität weiter.",
+        "data": {
+          "aggregate_controls": "Schalter- und Auswahlentitäten zusammenführen"
+        }
+      },
+      "derived": {
+        "title": "Laufzeitschätzungen der Batterie",
+        "description": "Der Hub kann zwei berechnete Sensoren bereitstellen: die geschätzte Zeit bis zur vollen Ladung und die geschätzte Zeit bis zu einem Reserve-Ladezustand. Sie werden aus der Batterieleistung und dem Ladezustand (SoC) abgeleitet, die der Hub bereits zusammenführt — keine zusätzliche Abfrage. Beides sind Schätzungen: Sie gehen davon aus, dass die aktuelle Lade- oder Entladerate gleich bleibt, ändern sich daher mit den Bedingungen und sind direkt nach einem Neustart von Home Assistant am ungenauesten, solange sich das Stichprobenfenster füllt.",
+        "data": {
+          "derived_sensors": "Laufzeitschätzungen der Batterie erstellen",
+          "reserve_soc": "Mindestladestand",
+          "battery_capacity": "Batteriekapazität (Überschreibung)"
+        },
+        "data_description": {
+          "derived_sensors": "Fügt sensor.hf_hub_battery_estimated_time_to_full und sensor.hf_hub_battery_estimated_time_to_minimum hinzu. Für einen reinen Durchleit-Hub ausschalten.",
+          "reserve_soc": "Die Schätzung zählt bis zu diesem Ladezustand herunter, nicht bis null. Stimme ihn auf den im Wechselrichter eingestellten Entlade-Endzustand (SoC) ab.",
+          "battery_capacity": "Bei 0 wird die Nennkapazität vom Wechselrichter gelesen. Setze nur dann einen Wert, wenn deine Quellen sie nicht liefern, oder um eine Batterie auszugleichen, deren tatsächliche Kapazität mit dem Alter gesunken ist."
+        }
+      }
+    },
+    "error": {
+      "no_sources": "Wähle mindestens eine Quellintegration aus.",
+      "duplicate_priority": "Jede Quelle darf in der Prioritätsliste nur einmal vorkommen."
+    }
+  },
+  "issues": {
+    "entity_id_drift": {
+      "title": "Entitäts-IDs des Hubs wurden umbenannt",
+      "description": "{count} Entitäts-ID(s), die von Huawei Fusion Hub erstellt wurden, folgen nicht mehr der Benennung `hf_hub_*`, die die Integration vergibt:\n\n{entities}\n\nDie Entitäten funktionieren weiterhin, aber alles, was sie über ihre ursprüngliche ID anspricht – Templates, Automationen, Dashboards, Langzeitstatistiken, InfluxDB- oder Grafana-Abfragen – verweist jetzt auf einen Namen, der nicht existiert.\n\nDas passiert meist, wenn eine Entitäts-ID von Hand umbenannt wurde oder wenn **Entitäts-IDs neu erstellen** auf einem Hub-Gerät verwendet wurde, während ein benutzerdefinierter Name gesetzt war. Um einen Namen wiederherzustellen, öffne die Entitätseinstellungen und setze die Entitäts-ID auf den oben angezeigten erwarteten Wert zurück. Diese Meldung verschwindet beim nächsten Neustart oder Neuladen, sobald alle IDs wieder übereinstimmen.\n\nWenn die neuen Namen beabsichtigt sind, aktualisiere alles, was darauf verweist, und ignoriere diese Meldung."
+    },
+    "ha_minimum_notice": {
+      "title": "Home Assistant {minimum} oder neuer wird benötigt",
+      "description": "Die nächste Version von Huawei Fusion Hub setzt Home Assistant {minimum} oder neuer voraus, und du verwendest {version}.\n\nHeute ändert sich nichts: Diese Version funktioniert weiter. HACS wird die nächste Version jedoch nicht auf diesem Home Assistant installieren, sodass du keine Updates mehr erhältst, bis du ihn aktualisierst.\n\nAktualisiere Home Assistant auf {minimum} oder neuer, um weiterhin Updates zu erhalten. Diese Meldung verschwindet beim ersten Neustart danach."
+    }
+  },
+  "entity": {
+    "sensor": {
+      "inverter_rated_power": {
+        "name": "Nennleistung"
+      },
+      "inverter_p_max": {
+        "name": "P max"
+      },
+      "pv_input_power": {
+        "name": "PV-Eingangsleistung"
+      },
+      "inverter_line_voltage_a_b": {
+        "name": "Leiterspannung A-B"
+      },
+      "inverter_line_voltage_b_c": {
+        "name": "Leiterspannung B-C"
+      },
+      "inverter_line_voltage_c_a": {
+        "name": "Leiterspannung C-A"
+      },
+      "inverter_phase_a_voltage": {
+        "name": "Spannung Phase A"
+      },
+      "inverter_phase_b_voltage": {
+        "name": "Spannung Phase B"
+      },
+      "inverter_phase_c_voltage": {
+        "name": "Spannung Phase C"
+      },
+      "inverter_phase_a_current": {
+        "name": "Strom Phase A"
+      },
+      "inverter_phase_b_current": {
+        "name": "Strom Phase B"
+      },
+      "inverter_phase_c_current": {
+        "name": "Strom Phase C"
+      },
+      "inverter_day_active_power_peak": {
+        "name": "Tagesspitze Wirkleistung"
+      },
+      "pv_active_power": {
+        "name": "PV-Wirkleistung"
+      },
+      "inverter_reactive_power": {
+        "name": "Blindleistung"
+      },
+      "inverter_power_factor": {
+        "name": "Leistungsfaktor"
+      },
+      "inverter_grid_frequency": {
+        "name": "Netzfrequenz"
+      },
+      "inverter_efficiency": {
+        "name": "Wirkungsgrad"
+      },
+      "inverter_temperature": {
+        "name": "Temperatur"
+      },
+      "inverter_insulation_resistance": {
+        "name": "Isolationswiderstand"
+      },
+      "inverter_status": {
+        "name": "Status"
+      },
+      "inverter_startup_time": {
+        "name": "Letzter Start"
+      },
+      "inverter_shutdown_time": {
+        "name": "Letzte Abschaltung"
+      },
+      "inverter_yield_total": {
+        "name": "Gesamtertrag"
+      },
+      "inverter_total_dc_input_energy": {
+        "name": "Gesamte DC-Eingangsenergie"
+      },
+      "inverter_statistics_time": {
+        "name": "Statistikzeit"
+      },
+      "inverter_yield_hour": {
+        "name": "Ertrag diese Stunde"
+      },
+      "inverter_yield_today": {
+        "name": "Ertrag heute"
+      },
+      "inverter_yield_month": {
+        "name": "Ertrag diesen Monat"
+      },
+      "inverter_yield_year": {
+        "name": "Ertrag dieses Jahr"
+      },
+      "inverter_state_1": {
+        "name": "Zustand 1"
+      },
+      "inverter_output_mode": {
+        "name": "Ausgabemodus"
+      },
+      "pv_1_voltage": {
+        "name": "Spannung PV-String 1"
+      },
+      "pv_1_current": {
+        "name": "Strom PV-String 1"
+      },
+      "pv_1_power": {
+        "name": "Leistung PV-String 1"
+      },
+      "pv_2_voltage": {
+        "name": "Spannung PV-String 2"
+      },
+      "pv_2_current": {
+        "name": "Strom PV-String 2"
+      },
+      "pv_2_power": {
+        "name": "Leistung PV-String 2"
+      },
+      "meter_status": {
+        "name": "Zählerstatus"
+      },
+      "meter_active_power": {
+        "name": "Wirkleistung"
+      },
+      "meter_reactive_power": {
+        "name": "Blindleistung"
+      },
+      "meter_power_factor": {
+        "name": "Leistungsfaktor"
+      },
+      "meter_frequency": {
+        "name": "Netzfrequenz"
+      },
+      "grid_exported_energy": {
+        "name": "Ins Netz eingespeiste Energie"
+      },
+      "grid_imported_energy": {
+        "name": "Aus dem Netz bezogene Energie"
+      },
+      "meter_reactive_energy": {
+        "name": "Blindenergie"
+      },
+      "meter_phase_a_voltage": {
+        "name": "Spannung Phase A"
+      },
+      "meter_phase_b_voltage": {
+        "name": "Spannung Phase B"
+      },
+      "meter_phase_c_voltage": {
+        "name": "Spannung Phase C"
+      },
+      "meter_phase_a_current": {
+        "name": "Strom Phase A"
+      },
+      "meter_phase_b_current": {
+        "name": "Strom Phase B"
+      },
+      "meter_phase_c_current": {
+        "name": "Strom Phase C"
+      },
+      "meter_phase_a_active_power": {
+        "name": "Wirkleistung Phase A"
+      },
+      "meter_phase_b_active_power": {
+        "name": "Wirkleistung Phase B"
+      },
+      "meter_phase_c_active_power": {
+        "name": "Wirkleistung Phase C"
+      },
+      "meter_line_voltage_a_b": {
+        "name": "Leiterspannung A-B"
+      },
+      "meter_line_voltage_b_c": {
+        "name": "Leiterspannung B-C"
+      },
+      "meter_line_voltage_c_a": {
+        "name": "Leiterspannung C-A"
+      },
+      "meter_rs485_port_mode": {
+        "name": "Modus RS485-2-Anschluss"
+      },
+      "meter_wifi_signal_strength": {
+        "name": "WLAN-Signalstärke"
+      },
+      "meter_signal_strength": {
+        "name": "Signalstärke"
+      },
+      "meter_communication_status": {
+        "name": "Kommunikationsstatus"
+      },
+      "meter_iacmeter": {
+        "name": "iAcMeter"
+      },
+      "meter_iacmeter_ip": {
+        "name": "iAcMeter-IP-Adresse"
+      },
+      "meter_iacmeter_mode": {
+        "name": "iAcMeter-Modus"
+      },
+      "meter_data_source": {
+        "name": "Datenquelle des Zählers"
+      },
+      "battery_soc": {
+        "name": "Ladezustand"
+      },
+      "battery_power": {
+        "name": "Lade-/Entladeleistung"
+      },
+      "battery_charged_today": {
+        "name": "Heute geladen"
+      },
+      "battery_discharged_today": {
+        "name": "Heute entladen"
+      },
+      "battery_total_charge": {
+        "name": "Gesamtladung"
+      },
+      "battery_total_discharge": {
+        "name": "Gesamtentladung"
+      },
+      "battery_status": {
+        "name": "Status"
+      },
+      "battery_bus_voltage": {
+        "name": "Busspannung"
+      },
+      "battery_bus_current": {
+        "name": "Busstrom"
+      },
+      "battery_rated_capacity": {
+        "name": "Nennkapazität"
+      },
+      "battery_max_charge_power": {
+        "name": "Maximale Ladeleistung"
+      },
+      "battery_max_discharge_power": {
+        "name": "Maximale Entladeleistung"
+      },
+      "battery_working_mode": {
+        "name": "Betriebsmodus"
+      },
+      "battery_backup_time": {
+        "name": "Backup-Zeit"
+      },
+      "battery_unit_1_working_mode": {
+        "name": "Betriebsmodus"
+      },
+      "battery_unit_1_charged_today": {
+        "name": "Heute geladen"
+      },
+      "battery_unit_1_discharged_today": {
+        "name": "Heute entladen"
+      },
+      "battery_unit_1_bus_current": {
+        "name": "Busstrom"
+      },
+      "battery_unit_1_bus_voltage": {
+        "name": "Busspannung"
+      },
+      "battery_unit_1_temperature": {
+        "name": "Temperatur"
+      },
+      "battery_unit_1_remaining_time": {
+        "name": "Verbleibende Lade-/Entladezeit"
+      },
+      "battery_unit_1_total_charge": {
+        "name": "Gesamtladung"
+      },
+      "battery_unit_1_total_discharge": {
+        "name": "Gesamtentladung"
+      },
+      "battery_unit_1_soc": {
+        "name": "Ladezustand"
+      },
+      "battery_unit_1_status": {
+        "name": "Status"
+      },
+      "battery_unit_1_power": {
+        "name": "Lade-/Entladeleistung"
+      },
+      "battery_unit_1_no": {
+        "name": "Einheitennummer"
+      },
+      "battery_unit_1_sn": {
+        "name": "Seriennummer"
+      },
+      "battery_unit_1_software_version": {
+        "name": "Softwareversion"
+      },
+      "battery_unit_1_fe_connection": {
+        "name": "FE-Verbindung"
+      },
+      "battery_unit_1_soh_calibration": {
+        "name": "SOH-Kalibrierung"
+      },
+      "battery_unit_2_working_mode": {
+        "name": "Betriebsmodus"
+      },
+      "battery_unit_2_charged_today": {
+        "name": "Heute geladen"
+      },
+      "battery_unit_2_discharged_today": {
+        "name": "Heute entladen"
+      },
+      "battery_unit_2_bus_current": {
+        "name": "Busstrom"
+      },
+      "battery_unit_2_bus_voltage": {
+        "name": "Busspannung"
+      },
+      "battery_unit_2_temperature": {
+        "name": "Temperatur"
+      },
+      "battery_unit_2_remaining_time": {
+        "name": "Verbleibende Lade-/Entladezeit"
+      },
+      "battery_unit_2_total_charge": {
+        "name": "Gesamtladung"
+      },
+      "battery_unit_2_total_discharge": {
+        "name": "Gesamtentladung"
+      },
+      "battery_unit_2_soc": {
+        "name": "Ladezustand"
+      },
+      "battery_unit_2_status": {
+        "name": "Status"
+      },
+      "battery_unit_2_power": {
+        "name": "Lade-/Entladeleistung"
+      },
+      "battery_unit_2_no": {
+        "name": "Einheitennummer"
+      },
+      "battery_unit_2_sn": {
+        "name": "Seriennummer"
+      },
+      "battery_unit_2_software_version": {
+        "name": "Softwareversion"
+      },
+      "battery_unit_2_fe_connection": {
+        "name": "FE-Verbindung"
+      },
+      "plant_power": {
+        "name": "Echtzeitleistung"
+      },
+      "plant_energy_today": {
+        "name": "Energie heute"
+      },
+      "plant_energy_month": {
+        "name": "Energie diesen Monat"
+      },
+      "plant_energy_year": {
+        "name": "Energie dieses Jahr"
+      },
+      "plant_energy_total": {
+        "name": "Energie gesamt"
+      },
+      "plant_income_today": {
+        "name": "Einnahmen heute"
+      },
+      "self_used_energy_today": {
+        "name": "Selbst genutzte Energie heute"
+      },
+      "consumption_today": {
+        "name": "Verbrauch heute"
+      },
+      "pv_self_consumption_energy": {
+        "name": "PV-Eigenverbrauch"
+      },
+      "pv_feed_in_energy_today": {
+        "name": "PV-Einspeisung heute"
+      },
+      "imported_grid_energy_today": {
+        "name": "Netzbezug heute"
+      },
+      "total_consumption": {
+        "name": "Gesamtverbrauch"
+      },
+      "grid_import_ratio": {
+        "name": "Netzbezugsquote"
+      },
+      "self_consumption_ratio": {
+        "name": "Eigenverbrauchsquote"
+      },
+      "self_consumption_ratio_by_production": {
+        "name": "Eigenverbrauchsquote bezogen auf die Erzeugung"
+      },
+      "flow_battery_power": {
+        "name": "Leistungsfluss Batterie"
+      },
+      "flow_load_power": {
+        "name": "Leistungsfluss Verbraucher"
+      },
+      "flow_grid_power": {
+        "name": "Leistungsfluss Netz"
+      },
+      "emma_peak_power": {
+        "name": "Spitzenleistung"
+      },
+      "emma_peak_shaving_mode": {
+        "name": "Peak-Shaving-Modus"
+      },
+      "emma_peak_shaving_backup_soc": {
+        "name": "Peak-Shaving-Reserve-SOC"
+      },
+      "emma_working_mode": {
+        "name": "Betriebsmodus"
+      },
+      "emma_active_power_control_mode": {
+        "name": "Wirkleistungs-Regelmodus"
+      },
+      "emma_max_grid_feed_in_power": {
+        "name": "Maximale Netzeinspeiseleistung"
+      },
+      "emma_max_mains_power": {
+        "name": "Maximale Netzleistung"
+      },
+      "emma_allowed_ac_charge_power": {
+        "name": "Zulässige AC-Ladeleistung"
+      },
+      "emma_charge_from_ac": {
+        "name": "Laden über AC"
+      },
+      "emma_grid_charge_cutoff_soc": {
+        "name": "Abschalt-SOC für Netzladung"
+      },
+      "emma_pv_power_priority": {
+        "name": "PV-Leistungspriorität"
+      },
+      "battery_unit_1_pack_1_no": {
+        "name": "Pack 1 Nr."
+      },
+      "battery_unit_1_pack_1_status": {
+        "name": "Pack 1 Betriebsstatus"
+      },
+      "battery_unit_1_pack_1_firmware_version": {
+        "name": "Pack 1 Firmware-Version"
+      },
+      "battery_unit_1_pack_1_serial_number": {
+        "name": "Pack 1 Seriennummer"
+      },
+      "battery_unit_1_pack_1_voltage": {
+        "name": "Pack 1 Spannung"
+      },
+      "battery_unit_1_pack_1_power": {
+        "name": "Pack 1 Lade-/Entladeleistung"
+      },
+      "battery_unit_1_pack_1_soc": {
+        "name": "Pack 1 Ladezustand"
+      },
+      "battery_unit_1_pack_1_max_temperature": {
+        "name": "Pack 1 Höchsttemperatur"
+      },
+      "battery_unit_1_pack_1_min_temperature": {
+        "name": "Pack 1 Tiefsttemperatur"
+      },
+      "battery_unit_1_pack_1_total_discharge": {
+        "name": "Pack 1 Gesamtentladung"
+      },
+      "battery_unit_1_pack_1_health_check": {
+        "name": "Pack 1 Gesundheitsprüfung"
+      },
+      "battery_unit_1_pack_1_heating_status": {
+        "name": "Pack 1 Heizstatus"
+      },
+      "battery_unit_1_pack_1_current": {
+        "name": "Pack 1 Strom"
+      },
+      "battery_unit_1_pack_1_soh_calibration": {
+        "name": "Pack 1 SOH-Kalibrierung"
+      },
+      "battery_unit_1_pack_1_total_charge": {
+        "name": "Pack 1 Gesamtladung"
+      },
+      "battery_unit_1_pack_2_no": {
+        "name": "Pack 2 Nr."
+      },
+      "battery_unit_1_pack_2_status": {
+        "name": "Pack 2 Betriebsstatus"
+      },
+      "battery_unit_1_pack_2_firmware_version": {
+        "name": "Pack 2 Firmware-Version"
+      },
+      "battery_unit_1_pack_2_serial_number": {
+        "name": "Pack 2 Seriennummer"
+      },
+      "battery_unit_1_pack_2_voltage": {
+        "name": "Pack 2 Spannung"
+      },
+      "battery_unit_1_pack_2_power": {
+        "name": "Pack 2 Lade-/Entladeleistung"
+      },
+      "battery_unit_1_pack_2_soc": {
+        "name": "Pack 2 Ladezustand"
+      },
+      "battery_unit_1_pack_2_max_temperature": {
+        "name": "Pack 2 Höchsttemperatur"
+      },
+      "battery_unit_1_pack_2_min_temperature": {
+        "name": "Pack 2 Tiefsttemperatur"
+      },
+      "battery_unit_1_pack_2_total_discharge": {
+        "name": "Pack 2 Gesamtentladung"
+      },
+      "battery_unit_1_pack_2_health_check": {
+        "name": "Pack 2 Gesundheitsprüfung"
+      },
+      "battery_unit_1_pack_2_heating_status": {
+        "name": "Pack 2 Heizstatus"
+      },
+      "battery_unit_1_pack_2_current": {
+        "name": "Pack 2 Strom"
+      },
+      "battery_unit_1_pack_2_soh_calibration": {
+        "name": "Pack 2 SOH-Kalibrierung"
+      },
+      "battery_unit_1_pack_2_total_charge": {
+        "name": "Pack 2 Gesamtladung"
+      },
+      "battery_unit_1_pack_3_no": {
+        "name": "Pack 3 Nr."
+      },
+      "battery_unit_1_pack_3_status": {
+        "name": "Pack 3 Betriebsstatus"
+      },
+      "battery_unit_1_pack_3_firmware_version": {
+        "name": "Pack 3 Firmware-Version"
+      },
+      "battery_unit_1_pack_3_serial_number": {
+        "name": "Pack 3 Seriennummer"
+      },
+      "battery_unit_1_pack_3_voltage": {
+        "name": "Pack 3 Spannung"
+      },
+      "battery_unit_1_pack_3_power": {
+        "name": "Pack 3 Lade-/Entladeleistung"
+      },
+      "battery_unit_1_pack_3_soc": {
+        "name": "Pack 3 Ladezustand"
+      },
+      "battery_unit_1_pack_3_max_temperature": {
+        "name": "Pack 3 Höchsttemperatur"
+      },
+      "battery_unit_1_pack_3_min_temperature": {
+        "name": "Pack 3 Tiefsttemperatur"
+      },
+      "battery_unit_1_pack_3_total_discharge": {
+        "name": "Pack 3 Gesamtentladung"
+      },
+      "battery_unit_1_pack_3_health_check": {
+        "name": "Pack 3 Gesundheitsprüfung"
+      },
+      "battery_unit_1_pack_3_heating_status": {
+        "name": "Pack 3 Heizstatus"
+      },
+      "battery_unit_1_pack_3_current": {
+        "name": "Pack 3 Strom"
+      },
+      "battery_unit_1_pack_3_soh_calibration": {
+        "name": "Pack 3 SOH-Kalibrierung"
+      },
+      "battery_unit_1_pack_3_total_charge": {
+        "name": "Pack 3 Gesamtladung"
+      },
+      "battery_unit_2_pack_1_no": {
+        "name": "Pack 1 Nr."
+      },
+      "battery_unit_2_pack_1_status": {
+        "name": "Pack 1 Betriebsstatus"
+      },
+      "battery_unit_2_pack_1_firmware_version": {
+        "name": "Pack 1 Firmware-Version"
+      },
+      "battery_unit_2_pack_1_serial_number": {
+        "name": "Pack 1 Seriennummer"
+      },
+      "battery_unit_2_pack_1_voltage": {
+        "name": "Pack 1 Spannung"
+      },
+      "battery_unit_2_pack_1_power": {
+        "name": "Pack 1 Lade-/Entladeleistung"
+      },
+      "battery_unit_2_pack_1_soc": {
+        "name": "Pack 1 Ladezustand"
+      },
+      "battery_unit_2_pack_1_max_temperature": {
+        "name": "Pack 1 Höchsttemperatur"
+      },
+      "battery_unit_2_pack_1_min_temperature": {
+        "name": "Pack 1 Tiefsttemperatur"
+      },
+      "battery_unit_2_pack_1_total_discharge": {
+        "name": "Pack 1 Gesamtentladung"
+      },
+      "battery_unit_2_pack_1_health_check": {
+        "name": "Pack 1 Gesundheitsprüfung"
+      },
+      "battery_unit_2_pack_1_heating_status": {
+        "name": "Pack 1 Heizstatus"
+      },
+      "battery_unit_2_pack_1_current": {
+        "name": "Pack 1 Strom"
+      },
+      "battery_unit_2_pack_1_soh_calibration": {
+        "name": "Pack 1 SOH-Kalibrierung"
+      },
+      "battery_unit_2_pack_1_total_charge": {
+        "name": "Pack 1 Gesamtladung"
+      },
+      "battery_unit_2_pack_2_no": {
+        "name": "Pack 2 Nr."
+      },
+      "battery_unit_2_pack_2_status": {
+        "name": "Pack 2 Betriebsstatus"
+      },
+      "battery_unit_2_pack_2_firmware_version": {
+        "name": "Pack 2 Firmware-Version"
+      },
+      "battery_unit_2_pack_2_serial_number": {
+        "name": "Pack 2 Seriennummer"
+      },
+      "battery_unit_2_pack_2_voltage": {
+        "name": "Pack 2 Spannung"
+      },
+      "battery_unit_2_pack_2_power": {
+        "name": "Pack 2 Lade-/Entladeleistung"
+      },
+      "battery_unit_2_pack_2_soc": {
+        "name": "Pack 2 Ladezustand"
+      },
+      "battery_unit_2_pack_2_max_temperature": {
+        "name": "Pack 2 Höchsttemperatur"
+      },
+      "battery_unit_2_pack_2_min_temperature": {
+        "name": "Pack 2 Tiefsttemperatur"
+      },
+      "battery_unit_2_pack_2_total_discharge": {
+        "name": "Pack 2 Gesamtentladung"
+      },
+      "battery_unit_2_pack_2_health_check": {
+        "name": "Pack 2 Gesundheitsprüfung"
+      },
+      "battery_unit_2_pack_2_heating_status": {
+        "name": "Pack 2 Heizstatus"
+      },
+      "battery_unit_2_pack_2_current": {
+        "name": "Pack 2 Strom"
+      },
+      "battery_unit_2_pack_2_soh_calibration": {
+        "name": "Pack 2 SOH-Kalibrierung"
+      },
+      "battery_unit_2_pack_2_total_charge": {
+        "name": "Pack 2 Gesamtladung"
+      },
+      "battery_unit_2_pack_3_no": {
+        "name": "Pack 3 Nr."
+      },
+      "battery_unit_2_pack_3_status": {
+        "name": "Pack 3 Betriebsstatus"
+      },
+      "battery_unit_2_pack_3_firmware_version": {
+        "name": "Pack 3 Firmware-Version"
+      },
+      "battery_unit_2_pack_3_serial_number": {
+        "name": "Pack 3 Seriennummer"
+      },
+      "battery_unit_2_pack_3_voltage": {
+        "name": "Pack 3 Spannung"
+      },
+      "battery_unit_2_pack_3_power": {
+        "name": "Pack 3 Lade-/Entladeleistung"
+      },
+      "battery_unit_2_pack_3_soc": {
+        "name": "Pack 3 Ladezustand"
+      },
+      "battery_unit_2_pack_3_max_temperature": {
+        "name": "Pack 3 Höchsttemperatur"
+      },
+      "battery_unit_2_pack_3_min_temperature": {
+        "name": "Pack 3 Tiefsttemperatur"
+      },
+      "battery_unit_2_pack_3_total_discharge": {
+        "name": "Pack 3 Gesamtentladung"
+      },
+      "battery_unit_2_pack_3_health_check": {
+        "name": "Pack 3 Gesundheitsprüfung"
+      },
+      "battery_unit_2_pack_3_heating_status": {
+        "name": "Pack 3 Heizstatus"
+      },
+      "battery_unit_2_pack_3_current": {
+        "name": "Pack 3 Strom"
+      },
+      "battery_unit_2_pack_3_soh_calibration": {
+        "name": "Pack 3 SOH-Kalibrierung"
+      },
+      "battery_unit_2_pack_3_total_charge": {
+        "name": "Pack 3 Gesamtladung"
+      },
+      "battery_estimated_time_to_full": {
+        "name": "Geschätzte Zeit bis zur vollen Ladung"
+      },
+      "battery_estimated_time_to_minimum": {
+        "name": "Geschätzte Zeit bis zur Mindestladung"
+      }
+    },
+    "binary_sensor": {
+      "hf_hub_huawei_solar_available": {
+        "name": "Verbindung Huawei Solar (Modbus)"
+      },
+      "hf_hub_fusion_solar_available": {
+        "name": "Verbindung FusionSolar"
+      },
+      "hf_hub_fusionsolarplus_available": {
+        "name": "Verbindung FusionSolarPlus"
+      }
+    },
+    "switch": {
+      "inverter_power": {
+        "name": "Wechselrichter"
+      },
+      "battery_charge_from_grid": {
+        "name": "Laden aus dem Netz"
+      },
+      "mppt_multimodal_scanning": {
+        "name": "MPPT-Multimodal-Scan"
+      }
+    },
+    "select": {
+      "battery_working_mode_select": {
+        "name": "Betriebsmodus"
+      },
+      "battery_excess_pv_energy_use_in_tou": {
+        "name": "Verwendung überschüssiger PV-Energie bei TOU"
+      },
+      "battery_capacity_control_mode": {
+        "name": "Kapazitätssteuerungsmodus"
+      }
+    },
+    "number": {
+      "inverter_power_derating_percent": {
+        "name": "Wirkleistungsreduzierung (%)"
+      },
+      "inverter_power_derating_watt": {
+        "name": "Wirkleistungsreduzierung (W)"
+      },
+      "mppt_scanning_interval": {
+        "name": "MPPT-Scan-Intervall"
+      },
+      "battery_maximum_charging_power": {
+        "name": "Maximale Ladeleistung"
+      },
+      "battery_maximum_discharging_power": {
+        "name": "Maximale Entladeleistung"
+      },
+      "battery_end_of_charge_soc": {
+        "name": "SOC bei Ladeende"
+      },
+      "battery_end_of_discharge_soc": {
+        "name": "SOC bei Entladeende"
+      },
+      "battery_backup_power_soc": {
+        "name": "Backup-Reserve-SOC"
+      },
+      "battery_grid_charge_cutoff_soc": {
+        "name": "Abschalt-SOC für Netzladung"
+      },
+      "battery_grid_charge_maximum_power": {
+        "name": "Maximale Netzladeleistung"
+      },
+      "battery_peak_shaving_soc": {
+        "name": "Peak-Shaving-SOC"
+      }
+    },
+    "button": {
+      "battery_stop_forcible_charge": {
+        "name": "Erzwungene Ladung stoppen"
+      }
+    }
+  }
+}

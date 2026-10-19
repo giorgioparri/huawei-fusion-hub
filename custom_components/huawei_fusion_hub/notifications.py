@@ -69,6 +69,39 @@ TEXTS: dict[str, dict[str, str]] = {
             "#battery-runtime-estimates)"
         ),
     },
+    "de": {
+        "title": "Huawei Fusion Hub",
+        "summary": (
+            "Erkennung abgeschlossen: **{total} Entitäten** erstellt ({counts}).\n\n"
+            "Zugeordnete Entitäten pro Quelle: {per_source}."
+        ),
+        "rediscovery_new": "**{n} neue Entitäten** erstellt ({counts})",
+        "rediscovery_gained": (
+            "**{n} bestehende Entitäten** haben eine zusätzliche Ausweichquelle "
+            "erhalten"
+        ),
+        "rediscovery": "Neue Daten von {sources} erkannt: {parts}.",
+        "offline": (
+            "Die Quelle **{name}** ist offline. "
+            "Die Werte kommen jetzt von der nächsten verfügbaren Quelle."
+        ),
+        "online": "Die Quelle **{name}** ist wieder online.",
+        "derived": (
+            "Zwei berechnete Sensoren wurden hinzugefügt: **geschätzte Zeit bis "
+            "zur vollen Ladung** und **geschätzte Zeit bis zur Mindestladung**.\n\n"
+            "Sie werden aus der Batterieleistung und dem Ladezustand abgeleitet, "
+            "die der Hub bereits zusammenführt, und gehen davon aus, dass die "
+            "aktuelle Rate bis zum Ziel gleich bleibt — sie ändern sich daher mit "
+            "den Bedingungen und veröffentlichen nichts, solange die Batterie "
+            "ruht.\n\n"
+            "Du kannst sie unter *Einstellungen → Geräte & Dienste → Huawei Fusion "
+            "Hub → Konfigurieren* ausschalten oder den Mindestladestand ändern, "
+            "bis zu dem sie herunterzählen.\n\n"
+            "[Details in der Dokumentation]"
+            "(https://github.com/giorgioparri/huawei-fusion-hub"
+            "#battery-runtime-estimates)"
+        ),
+    },
 }
 
 
