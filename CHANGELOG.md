@@ -6,6 +6,17 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+## [0.10.0] - 2026-11-04
+
+### Changed
+
+- **Requires Home Assistant 2026.8 or newer.** Sub-devices (Inverter, Battery, Power Meter…) are now linked to the hub device by its registry id (`via_device_id`) instead of `via_device`, which Home Assistant deprecated and removes in 2027.8; the replacement only exists from 2026.8. Devices, entities and their IDs are unchanged. See [Home Assistant version support](https://github.com/giorgioparri/huawei-fusion-hub#home-assistant-version-support).
+- Control entities (switch, select, number, button) now share the device information of the sensors, so their devices consistently report the "Aggregated device" model.
+
+### Removed
+
+- The repair issue added in 0.9.7 for Home Assistant releases older than 2026.8: this version cannot be installed on them, so it can no longer trigger.
+
 ## [0.9.7] - 2026-10-19
 
 ### Added
@@ -249,7 +260,8 @@ Home Assistant 2026.8 promoted entity ID renaming to a first-class action in the
 - Options flow to change priority and alert behavior without restart.
 - English and Italian translations.
 
-[Unreleased]: https://github.com/giorgioparri/huawei-fusion-hub/compare/v0.9.7...HEAD
+[Unreleased]: https://github.com/giorgioparri/huawei-fusion-hub/compare/v0.10.0...HEAD
+[0.10.0]: https://github.com/giorgioparri/huawei-fusion-hub/compare/v0.9.7...v0.10.0
 [0.9.7]: https://github.com/giorgioparri/huawei-fusion-hub/compare/v0.9.6...v0.9.7
 [0.9.6]: https://github.com/giorgioparri/huawei-fusion-hub/compare/v0.9.5...v0.9.6
 [0.9.5]: https://github.com/giorgioparri/huawei-fusion-hub/compare/v0.9.4...v0.9.5

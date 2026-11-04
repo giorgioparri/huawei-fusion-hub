@@ -9,7 +9,6 @@ from homeassistant.components.sensor import (
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import UnitOfTime
 from homeassistant.core import HomeAssistant, callback
-from homeassistant.helpers.device_registry import DeviceEntryType, DeviceInfo
 from homeassistant.helpers.dispatcher import async_dispatcher_connect
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
@@ -27,8 +26,6 @@ from .const import (
     ATTR_SOURCE_ENTITY,
     ATTR_WINDOW_SECONDS,
     DEVICE_BATTERY,
-    DEVICE_HUB,
-    DEVICE_NAMES,
     DOMAIN,
     ENTITY_PREFIX,
     KEY_TIME_TO_FULL,
@@ -36,6 +33,7 @@ from .const import (
     SIGNAL_NEW_KEYS,
 )
 from .coordinator import HubCoordinator
+from .devices import sub_device_info
 from .mapping import SENSOR_DEFS_BY_KEY, HubSensorDef
 
 
@@ -97,14 +95,8 @@ class HubSensor(CoordinatorEntity[HubCoordinator], SensorEntity):
         self._attr_native_unit_of_measurement = sensor_def.unit
         self._attr_icon = sensor_def.icon
         self._attr_entity_category = sensor_def.category
-        device = sensor_def.device
-        self._attr_device_info = DeviceInfo(
-            identifiers={(DOMAIN, device)},
-            name=DEVICE_NAMES[device],
-            manufacturer="giorgioparri",
-            model="Aggregated device",
-            entry_type=DeviceEntryType.SERVICE,
-            via_device=(DOMAIN, DEVICE_HUB),
+        self._attr_device_info = sub_device_info(
+            sensor_def.device, coordinator.hub_device_id
         )
 
     @property
@@ -144,13 +136,8 @@ class HubDerivedSensor(CoordinatorEntity[HubCoordinator], SensorEntity):
         self.entity_id = f"sensor.{ENTITY_PREFIX}_{key}"
         self._attr_translation_key = key
         self._attr_icon = icon
-        self._attr_device_info = DeviceInfo(
-            identifiers={(DOMAIN, DEVICE_BATTERY)},
-            name=DEVICE_NAMES[DEVICE_BATTERY],
-            manufacturer="giorgioparri",
-            model="Aggregated device",
-            entry_type=DeviceEntryType.SERVICE,
-            via_device=(DOMAIN, DEVICE_HUB),
+        self._attr_device_info = sub_device_info(
+            DEVICE_BATTERY, coordinator.hub_device_id
         )
 
     @property

@@ -7,19 +7,13 @@ from homeassistant.components.switch import SwitchEntity
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import STATE_ON, EntityCategory
 from homeassistant.core import HomeAssistant, callback
-from homeassistant.helpers.device_registry import DeviceEntryType, DeviceInfo
 from homeassistant.helpers.dispatcher import async_dispatcher_connect
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.event import async_track_state_change_event
 
-from .const import (
-    DEVICE_HUB,
-    DEVICE_NAMES,
-    DOMAIN,
-    ENTITY_PREFIX,
-    SIGNAL_CONTROLS_CHANGED,
-)
+from .const import DOMAIN, ENTITY_PREFIX, SIGNAL_CONTROLS_CHANGED
 from .coordinator import HubCoordinator
+from .devices import sub_device_info
 from .mapping import CONTROL_DEFS_BY_KEY, HubControlDef
 
 
@@ -54,13 +48,8 @@ class HubControlProxyBase:
         self.entity_id = f"{control_def.platform}.{ENTITY_PREFIX}_{control_def.key}"
         self._attr_translation_key = control_def.key
         self._attr_icon = control_def.icon
-        device = control_def.device
-        self._attr_device_info = DeviceInfo(
-            identifiers={(DOMAIN, device)},
-            name=DEVICE_NAMES[device],
-            manufacturer="giorgioparri",
-            entry_type=DeviceEntryType.SERVICE,
-            via_device=(DOMAIN, DEVICE_HUB),
+        self._attr_device_info = sub_device_info(
+            control_def.device, coordinator.hub_device_id
         )
 
     @property
