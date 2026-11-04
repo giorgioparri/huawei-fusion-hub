@@ -70,15 +70,11 @@ At least one of the following integrations must be installed and configured befo
 
 ## Home Assistant version support
 
-This release requires Home Assistant **2026.3** or newer. **The next release will require 2026.8 or newer.**
+This integration requires Home Assistant **2026.8** or newer.
 
-The reason is a change in Home Assistant itself. The way an integration attaches its sub-devices (Inverter, Battery, Power Meter…) to the hub device is being replaced, and the old way stops working in Home Assistant 2027.8. The replacement only exists from 2026.8 onwards, so no single version of the hub can use it and still run on older releases.
+The reason is a change in Home Assistant itself. Since 0.10.0 the hub attaches its sub-devices (Inverter, Battery, Power Meter…) to the hub device the way Home Assistant now expects, and that way only exists from 2026.8 onwards. The previous one is deprecated and stops working in Home Assistant 2027.8.
 
-If your Home Assistant is older than 2026.8:
-
-- A repair issue in *Settings → System → Repairs* tells you so. It disappears at the first restart after you upgrade.
-- This version keeps working as it is: nothing is removed and no entity changes.
-- HACS will still list the next release as an update, but will refuse to install it until Home Assistant is upgraded.
+If your Home Assistant is older than 2026.8, version 0.9.7 keeps working as it is. HACS will still list newer releases as updates, but will refuse to install them until Home Assistant is upgraded.
 
 ---
 
