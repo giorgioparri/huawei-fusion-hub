@@ -104,10 +104,6 @@
     "entity_id_drift": {
       "title": "Entitäts-IDs des Hubs wurden umbenannt",
       "description": "{count} Entitäts-ID(s), die von Huawei Fusion Hub erstellt wurden, folgen nicht mehr der Benennung `hf_hub_*`, die die Integration vergibt:\n\n{entities}\n\nDie Entitäten funktionieren weiterhin, aber alles, was sie über ihre ursprüngliche ID anspricht – Templates, Automationen, Dashboards, Langzeitstatistiken, InfluxDB- oder Grafana-Abfragen – verweist jetzt auf einen Namen, der nicht existiert.\n\nDas passiert meist, wenn eine Entitäts-ID von Hand umbenannt wurde oder wenn **Entitäts-IDs neu erstellen** auf einem Hub-Gerät verwendet wurde, während ein benutzerdefinierter Name gesetzt war. Um einen Namen wiederherzustellen, öffne die Entitätseinstellungen und setze die Entitäts-ID auf den oben angezeigten erwarteten Wert zurück. Diese Meldung verschwindet beim nächsten Neustart oder Neuladen, sobald alle IDs wieder übereinstimmen.\n\nWenn die neuen Namen beabsichtigt sind, aktualisiere alles, was darauf verweist, und ignoriere diese Meldung."
-    },
-    "ha_minimum_notice": {
-      "title": "Home Assistant {minimum} oder neuer wird benötigt",
-      "description": "Die nächste Version von Huawei Fusion Hub setzt Home Assistant {minimum} oder neuer voraus, und du verwendest {version}.\n\nHeute ändert sich nichts: Diese Version funktioniert weiter. HACS wird die nächste Version jedoch nicht auf diesem Home Assistant installieren, sodass du keine Updates mehr erhältst, bis du ihn aktualisierst.\n\nAktualisiere Home Assistant auf {minimum} oder neuer, um weiterhin Updates zu erhalten. Diese Meldung verschwindet beim ersten Neustart danach."
     }
   },
   "entity": {

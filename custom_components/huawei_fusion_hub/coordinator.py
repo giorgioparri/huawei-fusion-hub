@@ -122,9 +122,11 @@ def diff_candidates(
 class HubCoordinator(DataUpdateCoordinator[dict[str, ResolvedValue]]):
     """Event-driven coordinator over already-existing HA entities."""
 
-    def __init__(self, hass: HomeAssistant, entry) -> None:
+    def __init__(self, hass: HomeAssistant, entry, hub_device_id: str) -> None:
         super().__init__(hass, _LOGGER, name=DOMAIN, update_interval=None)
         self.entry = entry
+        # registry id of the hub device, which the sub-devices link to
+        self.hub_device_id = hub_device_id
         self.priority: list[str] = entry.options.get(
             CONF_PRIORITY, entry.data.get(CONF_PRIORITY, [])
         )
