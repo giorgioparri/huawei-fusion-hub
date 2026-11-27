@@ -1,6 +1,7 @@
 {
   "domain": "huawei_fusion_hub",
   "name": "Huawei Fusion Hub",
+  "categories": ["energy.solar_batteries", "energy.meters_monitoring"],
   "codeowners": ["@giorgioparri"],
   "config_flow": true,
   "dependencies": [],
