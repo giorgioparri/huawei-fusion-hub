@@ -6,6 +6,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+## [0.11.1] - 2026-11-28
+
+### Fixed
+
+- The repairs no longer offer to enable the entities of battery packs that are not installed. Huawei Solar registers packs 1 to 3 for every LUNA2000 unit, so on a two-module battery **Hub entities have no readable source** listed the registers of a third module that does not exist. A pack is now reported only when at least one source shows it, which in practice means FusionSolarPlus; with Huawei Solar as the only source, enable the pack entities of your modules by hand. See [Disabled source entities](https://github.com/giorgioparri/huawei-fusion-hub#disabled-source-entities).
+
 ## [0.11.0] - 2026-11-28
 
 ### Added
@@ -273,7 +279,8 @@ Home Assistant 2026.8 promoted entity ID renaming to a first-class action in the
 - Options flow to change priority and alert behavior without restart.
 - English and Italian translations.
 
-[Unreleased]: https://github.com/giorgioparri/huawei-fusion-hub/compare/v0.11.0...HEAD
+[Unreleased]: https://github.com/giorgioparri/huawei-fusion-hub/compare/v0.11.1...HEAD
+[0.11.1]: https://github.com/giorgioparri/huawei-fusion-hub/compare/v0.11.0...v0.11.1
 [0.11.0]: https://github.com/giorgioparri/huawei-fusion-hub/compare/v0.10.0...v0.11.0
 [0.10.0]: https://github.com/giorgioparri/huawei-fusion-hub/compare/v0.9.7...v0.10.0
 [0.9.7]: https://github.com/giorgioparri/huawei-fusion-hub/compare/v0.9.6...v0.9.7

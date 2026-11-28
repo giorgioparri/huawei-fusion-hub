@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import logging
+import re
 from dataclasses import dataclass
 from time import monotonic
 from typing import Any
@@ -149,6 +150,44 @@ def disabled_candidate_report(
         for key, per_source in candidates.items()
     }
     return {key: per_source for key, per_source in report.items() if per_source}
+
+
+# canonical keys of a single battery pack: battery_unit_<u>_pack_<p>_<field>
+_PACK_KEY = re.compile(r"^(battery_unit_\d+_pack_\d+)_")
+
+
+def absent_pack_keys(
+    candidates: dict[str, dict[str, str]],
+    disabled_by: dict[str, RegistryEntryDisabler | None],
+) -> set[str]:
+    """Keys of battery packs that no source shows as installed.
+
+    Huawei Solar registers the entities of packs 1 to 3 for every LUNA2000
+    unit, all disabled, whatever the number of modules actually fitted, and
+    exposes no register with the pack count. A pack is therefore taken as
+    installed only when at least one of its candidates, in any source, is
+    enabled: FusionSolarPlus creates entities only for the modules the cloud
+    sees. A pack with every candidate disabled stays out of the repairs, which
+    would otherwise offer to enable the registers of a module that does not
+    exist. The cost: with Huawei Solar as the only source no pack is ever
+    reported, since all of its pack entities start disabled.
+
+    Kept free of Home Assistant objects so it can be exercised directly.
+    """
+    installed: dict[str, bool] = {}
+    for key, per_source in candidates.items():
+        match = _PACK_KEY.match(key)
+        if not match:
+            continue
+        enabled = any(
+            disabled_by.get(entity_id) is None for entity_id in per_source.values()
+        )
+        installed[match.group(1)] = installed.get(match.group(1), False) or enabled
+    return {
+        key
+        for key in candidates
+        if (match := _PACK_KEY.match(key)) and not installed[match.group(1)]
+    }
 
 
 def critical_disabled_candidates(
@@ -321,8 +360,11 @@ class HubCoordinator(DataUpdateCoordinator[dict[str, ResolvedValue]]):
                 if per_source:
                     self.control_candidates[control_def.key] = per_source
 
+        all_candidates = {**self.candidates, **self.control_candidates}
+        absent = absent_pack_keys(all_candidates, disabled_by)
         self.disabled_candidates = disabled_candidate_report(
-            {**self.candidates, **self.control_candidates}, disabled_by
+            {k: v for k, v in all_candidates.items() if k not in absent},
+            disabled_by,
         )
         self._report_disabled_candidates()
 
