@@ -21,6 +21,7 @@ sys.path.insert(
 )
 
 import huawei_fusion_hub.coordinator as coordinator_module
+import huawei_fusion_hub.repairs as repairs_module
 from homeassistant.helpers.entity_registry import RegistryEntryDisabler
 from huawei_fusion_hub.const import (
     DOMAIN,
@@ -299,6 +300,91 @@ def test_every_disabled_issue_gets_the_custom_flow():
             async_create_fix_flow(None, issue_id, {"entities": "sensor.a"})
         )
         assert isinstance(flow, EnableDisabledEntitiesFlow), issue_id
+
+
+class _FakeIssueRegistry:
+    """Stand-in for issue_registry, as the repair flow uses it."""
+
+    def __init__(self, placeholders):
+        self.placeholders = placeholders
+        self.ignored: list[tuple[str, str, bool]] = []
+
+    def async_get(self, hass):
+        return self
+
+    def async_get_issue(self, domain, issue_id):
+        return SimpleNamespace(translation_placeholders=self.placeholders)
+
+    def async_ignore_issue(self, hass, domain, issue_id, ignore):
+        self.ignored.append((domain, issue_id, ignore))
+
+
+class _FakeEntityRegistry:
+    """Stand-in for entity_registry, as the repair flow uses it."""
+
+    def __init__(self, disabled_by):
+        self.disabled_by = disabled_by
+        self.enabled: list[str] = []
+
+    def async_get(self, arg):
+        if arg is None or not isinstance(arg, str):
+            return self
+        if arg not in self.disabled_by:
+            return None
+        return SimpleNamespace(disabled_by=self.disabled_by[arg])
+
+    def async_update_entity(self, entity_id, *, disabled_by):
+        assert disabled_by is None
+        self.enabled.append(entity_id)
+
+
+def _run_step(step, *, ir_fake=None, er_fake=None):
+    """Run one step of the repair flow against the stand-ins."""
+    import asyncio
+
+    flow = EnableDisabledEntitiesFlow({"entities": "sensor.a\nsensor.b"})
+    flow.hass = None
+    flow.handler = DOMAIN
+    flow.flow_id = "flow"
+    flow.context = {"issue_id": ISSUE_DISABLED_FALLBACK_ENTITIES}
+    originals = (repairs_module.ir, repairs_module.er)
+    repairs_module.ir = ir_fake or _FakeIssueRegistry({})
+    repairs_module.er = er_fake or _FakeEntityRegistry({})
+    try:
+        return asyncio.run(getattr(flow, f"async_step_{step}")())
+    finally:
+        repairs_module.ir, repairs_module.er = originals
+
+
+def test_the_flow_opens_on_a_menu_to_enable_or_ignore():
+    # a fixable issue gets no Ignore button from Home Assistant, so the flow
+    # itself has to offer it
+    result = _run_step("init", ir_fake=_FakeIssueRegistry({"keys": "22"}))
+    assert result["type"] == "menu"
+    assert result["menu_options"] == ["confirm", "ignore"]
+    placeholders = result["description_placeholders"]
+    assert placeholders["keys"] == "22"
+    assert placeholders["count"] == "2"
+    assert placeholders["entities"] == "- `sensor.a`\n- `sensor.b`"
+
+
+def test_ignore_ignores_the_issue_and_enables_nothing():
+    issues = _FakeIssueRegistry({})
+    entities = _FakeEntityRegistry({"sensor.a": DISABLER_INTEGRATION})
+    result = _run_step("ignore", ir_fake=issues, er_fake=entities)
+    assert result["type"] == "abort"
+    assert result["reason"] == "issue_ignored"
+    assert issues.ignored == [(DOMAIN, ISSUE_DISABLED_FALLBACK_ENTITIES, True)]
+    assert entities.enabled == []
+
+
+def test_confirm_enables_the_disabled_entities_only():
+    entities = _FakeEntityRegistry(
+        {"sensor.a": DISABLER_INTEGRATION, "sensor.b": None}
+    )
+    result = _run_step("confirm", er_fake=entities)
+    assert result["type"] == "create_entry"
+    assert entities.enabled == ["sensor.a"]
 
 
 # A LUNA2000 with two modules, as Huawei Solar and FusionSolarPlus register it:
