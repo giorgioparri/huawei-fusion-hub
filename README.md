@@ -247,6 +247,8 @@ Both flows enable entities through the entity registry after a confirmation — 
 
 Only entities disabled **by the source integration** are reported. Entities switched off in the interface, or disabled as a side effect of a disabled config entry or device, are deliberate choices and stay untouched: reporting them would nag, and the flow would try to re-enable entities of an integration that is itself disabled.
 
+Battery packs are reported only when some source shows them installed. Huawei Solar registers the entities of packs 1 to 3 for every LUNA2000 unit, all disabled, whatever the number of modules actually fitted, and offers no way to tell how many there are; FusionSolarPlus creates entities only for the modules it sees. A pack is therefore reported only when at least one of its entities, in any source, is enabled. With Huawei Solar as the only source no pack is ever reported: enable the pack entities of the modules you have by hand.
+
 This is also how a fallback disappears without any error: with the cloud source offline, a hub entity only fails over to a local source entity that is enabled.
 
 ---

@@ -30,6 +30,7 @@ from huawei_fusion_hub.const import (
     SOURCE_HUAWEI_SOLAR,
 )
 from huawei_fusion_hub.coordinator import (
+    absent_pack_keys,
     critical_disabled_candidates,
     disabled_candidate_report,
 )
@@ -298,6 +299,78 @@ def test_every_disabled_issue_gets_the_custom_flow():
             async_create_fix_flow(None, issue_id, {"entities": "sensor.a"})
         )
         assert isinstance(flow, EnableDisabledEntitiesFlow), issue_id
+
+
+# A LUNA2000 with two modules, as Huawei Solar and FusionSolarPlus register it:
+# Huawei Solar creates packs 1 to 3, all disabled by the integration;
+# FusionSolarPlus creates (enabled) entities only for the modules it sees.
+TWO_PACK_CANDIDATES = {
+    "battery_unit_1_pack_1_voltage": {
+        SOURCE_HUAWEI_SOLAR: "sensor.batteria_1_pack_1_voltage",
+        SOURCE_FUSION_SOLAR_PLUS: "sensor.fsp_battery_module_1_voltage",
+    },
+    "battery_unit_1_pack_1_current": {
+        SOURCE_HUAWEI_SOLAR: "sensor.batteria_1_pack_1_current",
+    },
+    "battery_unit_1_pack_3_voltage": {
+        SOURCE_HUAWEI_SOLAR: "sensor.batteria_1_pack_3_voltage",
+    },
+    "battery_unit_1_pack_3_current": {
+        SOURCE_HUAWEI_SOLAR: "sensor.batteria_1_pack_3_current",
+    },
+    "inverter_p_max": {
+        SOURCE_HUAWEI_SOLAR: "sensor.inverter_potenza_attiva_massima",
+    },
+}
+TWO_PACK_DISABLED_BY = {
+    "sensor.batteria_1_pack_1_voltage": DISABLER_INTEGRATION,
+    "sensor.fsp_battery_module_1_voltage": None,
+    "sensor.batteria_1_pack_1_current": DISABLER_INTEGRATION,
+    "sensor.batteria_1_pack_3_voltage": DISABLER_INTEGRATION,
+    "sensor.batteria_1_pack_3_current": DISABLER_INTEGRATION,
+    "sensor.inverter_potenza_attiva_massima": DISABLER_INTEGRATION,
+}
+
+
+def test_a_pack_no_source_shows_is_absent():
+    absent = absent_pack_keys(TWO_PACK_CANDIDATES, TWO_PACK_DISABLED_BY)
+    assert absent == {
+        "battery_unit_1_pack_3_voltage",
+        "battery_unit_1_pack_3_current",
+    }
+
+
+def test_one_enabled_entity_makes_the_whole_pack_present():
+    # pack 1 current has only a disabled Huawei Solar candidate, but the pack
+    # itself is seen by FusionSolarPlus, so its keys stay reportable
+    absent = absent_pack_keys(TWO_PACK_CANDIDATES, TWO_PACK_DISABLED_BY)
+    assert "battery_unit_1_pack_1_current" not in absent
+    assert "battery_unit_1_pack_1_voltage" not in absent
+
+
+def test_keys_outside_the_packs_are_never_absent():
+    absent = absent_pack_keys(TWO_PACK_CANDIDATES, TWO_PACK_DISABLED_BY)
+    assert "inverter_p_max" not in absent
+
+
+def test_a_pack_disabled_by_the_user_everywhere_is_absent():
+    disabled_by = dict(TWO_PACK_DISABLED_BY)
+    disabled_by["sensor.fsp_battery_module_1_voltage"] = DISABLER_USER
+    absent = absent_pack_keys(TWO_PACK_CANDIDATES, disabled_by)
+    assert "battery_unit_1_pack_1_current" in absent
+
+
+def test_the_report_leaves_out_a_missing_pack():
+    absent = absent_pack_keys(TWO_PACK_CANDIDATES, TWO_PACK_DISABLED_BY)
+    report = disabled_candidate_report(
+        {k: v for k, v in TWO_PACK_CANDIDATES.items() if k not in absent},
+        TWO_PACK_DISABLED_BY,
+    )
+    assert set(report) == {
+        "battery_unit_1_pack_1_voltage",
+        "battery_unit_1_pack_1_current",
+        "inverter_p_max",
+    }
 
 
 if __name__ == "__main__":
