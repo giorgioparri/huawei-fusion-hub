@@ -9,7 +9,9 @@ from typing import Any
 from homeassistant.core import Event, HomeAssistant, callback
 from homeassistant.helpers import device_registry as dr
 from homeassistant.helpers import entity_registry as er
+from homeassistant.helpers import issue_registry as ir
 from homeassistant.helpers.dispatcher import async_dispatcher_send
+from homeassistant.helpers.entity_registry import RegistryEntryDisabler
 from homeassistant.helpers.event import (
     async_call_later,
     async_track_state_change_event,
@@ -37,6 +39,8 @@ from .const import (
     DEFAULT_RESERVE_SOC,
     DEVICE_NAMES,
     DOMAIN,
+    ISSUE_DISABLED_FALLBACK_ENTITIES,
+    ISSUE_DISABLED_SOURCE_ENTITIES,
     KEY_BATTERY_CAPACITY,
     KEY_BATTERY_POWER,
     KEY_BATTERY_SOC,
@@ -120,6 +124,60 @@ def diff_candidates(
     )
 
 
+def disabled_candidate_report(
+    candidates: dict[str, dict[str, str]],
+    disabled_by: dict[str, RegistryEntryDisabler | None],
+) -> dict[str, dict[str, str]]:
+    """Canonical keys whose resolved source entity is disabled in the registry.
+
+    A registry entry with `disabled_by` set never gets an entity object, so it
+    has no state at all - not `unknown`, simply absent. The hub discovers by
+    registry, so such an entity stays a candidate forever while never being
+    readable: a dead failover path rather than a value that comes and goes.
+    Especially relevant because source integrations ship most non-aggregate
+    registers disabled by default, so a mapping that looks complete can have no
+    working source on a fresh install.
+
+    Kept free of Home Assistant objects so it can be exercised directly.
+    """
+    report = {
+        key: {
+            source: entity_id
+            for source, entity_id in per_source.items()
+            if disabled_by.get(entity_id) is RegistryEntryDisabler.INTEGRATION
+        }
+        for key, per_source in candidates.items()
+    }
+    return {key: per_source for key, per_source in report.items() if per_source}
+
+
+def critical_disabled_candidates(
+    candidates: dict[str, dict[str, str]],
+    disabled: dict[str, dict[str, str]],
+) -> dict[str, dict[str, str]]:
+    """Keys where *every* configured source is disabled, so no value can resolve.
+
+    Distinguishes "a fallback lane is dead" from "this key has no working source
+    at all". Only the second kind costs the user a value today, so the repair
+    flow offers it as the conservative choice; the rest is opt-in.
+    """
+    return {
+        key: per_source
+        for key, per_source in disabled.items()
+        if key in candidates and set(candidates[key]) <= set(per_source)
+    }
+
+
+def _distinct_ids(report: dict[str, dict[str, str]]) -> list[str]:
+    """The source entity IDs of a report, ordered and without duplicates."""
+    seen: dict[str, None] = {}
+    for entity_id in (
+        entity_id for per_source in report.values() for entity_id in per_source.values()
+    ):
+        seen.setdefault(entity_id, None)
+    return list(seen)
+
+
 class HubCoordinator(DataUpdateCoordinator[dict[str, ResolvedValue]]):
     """Event-driven coordinator over already-existing HA entities."""
 
@@ -167,6 +225,10 @@ class HubCoordinator(DataUpdateCoordinator[dict[str, ResolvedValue]]):
         self.candidates: dict[str, dict[str, str]] = {}
         # source -> set of its mapped entity_ids
         self.source_entities: dict[str, set[str]] = {}
+        # canonical_key -> {source: entity_id} for candidates whose registry
+        # entry is disabled, i.e. readable by nobody
+        self.disabled_candidates: dict[str, dict[str, str]] = {}
+
         # source -> bool (last known availability)
         self.source_available: dict[str, bool] = {}
         # sources for which an offline alert was actually fired this runtime;
@@ -205,6 +267,12 @@ class HubCoordinator(DataUpdateCoordinator[dict[str, ResolvedValue]]):
                     if device and device.model:
                         model = device.model
                 by_source[entity.platform].append((entity, model))
+
+        # entity_id -> disabled_by, for the report after matching
+        disabled_by = {
+            entity.entity_id: entity.disabled_by
+            for entity in registry.entities.values()
+        }
 
         self.candidates = {}
         self.source_entities = {s: set() for s in self.priority}
@@ -252,6 +320,11 @@ class HubCoordinator(DataUpdateCoordinator[dict[str, ResolvedValue]]):
                         per_source[source] = entity_id
                 if per_source:
                     self.control_candidates[control_def.key] = per_source
+
+        self.disabled_candidates = disabled_candidate_report(
+            {**self.candidates, **self.control_candidates}, disabled_by
+        )
+        self._report_disabled_candidates()
 
         _LOGGER.debug(
             "Discovery result: %d sensors, %d controls",
@@ -374,6 +447,95 @@ class HubCoordinator(DataUpdateCoordinator[dict[str, ResolvedValue]]):
     def _format_counts(self, counts: dict[str, int]) -> str:
         return ", ".join(
             f"{DEVICE_NAMES[device]}: {n}" for device, n in sorted(counts.items())
+        )
+
+    def _report_disabled_candidates(self) -> None:
+        """Log and raise repairs for source entities the hub can never read.
+
+        Two issues instead of one: a key whose every configured source is disabled
+        has no value at all (a problem), while a disabled entity that merely shadows
+        a working source is a dead fallback lane (worth knowing, not urgent). One
+        repair each means one click each, and the second can simply be ignored.
+
+        Runs on every discovery pass, so enabling an entity clears the repairs at
+        the next rediscovery and disabling one raises them again.
+        """
+        critical = critical_disabled_candidates(
+            self.candidates, self.disabled_candidates
+        )
+        critical_ids = _distinct_ids(critical)
+        fallback_ids = [
+            entity_id
+            for entity_id in _distinct_ids(self.disabled_candidates)
+            if entity_id not in set(critical_ids)
+        ]
+
+        if not critical_ids and not fallback_ids:
+            ir.async_delete_issue(self.hass, DOMAIN, ISSUE_DISABLED_SOURCE_ENTITIES)
+            ir.async_delete_issue(self.hass, DOMAIN, ISSUE_DISABLED_FALLBACK_ENTITIES)
+            return
+
+        _LOGGER.warning(
+            "%d source entit(y/ies) the hub needs are disabled: %d with no working "
+            "source left, %d dead fallback lanes",
+            len(critical_ids) + len(fallback_ids),
+            len(critical_ids),
+            len(fallback_ids),
+        )
+        self._raise_disabled_issue(
+            ISSUE_DISABLED_SOURCE_ENTITIES,
+            critical_ids,
+            critical,
+            severity=ir.IssueSeverity.WARNING,
+        )
+        self._raise_disabled_issue(
+            ISSUE_DISABLED_FALLBACK_ENTITIES,
+            fallback_ids,
+            {
+                key: per_source
+                for key, per_source in self.disabled_candidates.items()
+                if key not in critical
+            },
+            severity=ir.IssueSeverity.WARNING,
+        )
+
+    def _raise_disabled_issue(
+        self,
+        issue_id: str,
+        entity_ids: list[str],
+        report: dict[str, dict[str, str]],
+        *,
+        severity: ir.IssueSeverity,
+    ) -> None:
+        """Create one repair listing `entity_ids`, or clear it when empty."""
+        if not entity_ids:
+            ir.async_delete_issue(self.hass, DOMAIN, issue_id)
+            return
+
+        entries = [
+            f"`{entity_id}` — {SOURCE_NAMES.get(source, source)}, key `{key}`"
+            for key, per_source in sorted(report.items())
+            for source, entity_id in sorted(per_source.items())
+        ]
+        ir.async_create_issue(
+            self.hass,
+            DOMAIN,
+            issue_id,
+            is_fixable=True,
+            severity=severity,
+            translation_key=issue_id,
+            # repair data is limited to str/int/float/None: ship the entity IDs
+            # newline-joined, the flow splits them again
+            data={"entities": "\n".join(entity_ids)},
+            translation_placeholders={
+                "count": str(len(entity_ids)),
+                "keys": str(len(report)),
+                "entities": "\n".join(f"- {item}" for item in entries),
+            },
+            learn_more_url=(
+                "https://github.com/giorgioparri/huawei-fusion-hub"
+                "#disabled-source-entities"
+            ),
         )
 
     async def _maybe_notify_initial_summary(self) -> None:

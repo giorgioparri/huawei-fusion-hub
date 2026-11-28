@@ -100,6 +100,8 @@ SIGNAL_CONTROLS_CHANGED = f"{DOMAIN}_controls_changed"
 
 # repair issue raised when a hub entity_id no longer matches its unique_id
 ISSUE_ENTITY_ID_DRIFT = "entity_id_drift"
+ISSUE_DISABLED_SOURCE_ENTITIES = "disabled_source_entities"
+ISSUE_DISABLED_FALLBACK_ENTITIES = "disabled_fallback_entities"
 
 # storage for one-time flags (suffix: entry_id)
 STORAGE_VERSION = 1

@@ -234,6 +234,23 @@ A source is marked offline when more than 80% of its mapped entities are `unavai
 
 ---
 
+## Disabled source entities
+
+The hub reads only entities Home Assistant actually runs. A source entity that is disabled in the entity registry gets no state at all — not `unknown`, simply absent — so the hub still discovers it by unique ID and lists it as a candidate, yet can never read a value from it: the failover it would provide does not exist. This is not a corner case. Source integrations ship most of their non-aggregate registers disabled by default: on one EMMA installation 117 of the 172 `huawei_solar` entities were.
+
+Discovery therefore reports disabled source entities as **two** fixable repairs under **Settings > System > Repairs**, because the two cases cost different things:
+
+- **Hub entities have no readable source** — every configured source of those hub entities is disabled, so they cannot produce a value at all. **Fix** enables the entities that are the sole source of those keys.
+- **Fallback source entities are disabled** — another source is supplying the values right now, so nothing is broken; the disabled entity is a fallback lane that will be missing during an outage. **Fix** enables them if you want the failover back, or **ignore** the issue if you would rather not add those entities to your recorder.
+
+Both flows enable entities through the entity registry after a confirmation — the same write the switch on the entity page performs, reversible at any time — and both issues clear themselves at the next rediscovery, because enabling is a registry change and that already triggers one.
+
+Only entities disabled **by the source integration** are reported. Entities switched off in the interface, or disabled as a side effect of a disabled config entry or device, are deliberate choices and stay untouched: reporting them would nag, and the flow would try to re-enable entities of an integration that is itself disabled.
+
+This is also how a fallback disappears without any error: with the cloud source offline, a hub entity only fails over to a local source entity that is enabled.
+
+---
+
 ## Changelog
 
 See [CHANGELOG.md](https://github.com/giorgioparri/huawei-fusion-hub/blob/HEAD/CHANGELOG.md) for the full version history.

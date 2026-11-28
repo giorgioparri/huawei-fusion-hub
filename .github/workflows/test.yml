@@ -40,3 +40,5 @@ jobs:
         run: python tests/test_device_info.py
       - name: Run mapping unit tests
         run: python tests/test_mapping_units.py
+      - name: Run disabled-entity report tests
+        run: python tests/test_disabled_candidates.py

@@ -104,6 +104,28 @@
     "entity_id_drift": {
       "title": "Hub entity IDs have been renamed",
       "description": "{count} entity ID(s) created by Huawei Fusion Hub no longer follow the `hf_hub_*` naming the integration assigns:\n\n{entities}\n\nThe entities still work, but anything addressing them by their original ID - templates, automations, dashboards, long-term statistics, InfluxDB or Grafana queries - is now pointing at a name that does not exist.\n\nThis usually happens after renaming an entity ID by hand, or after using **Recreate entity IDs** on a hub device while a custom name was set. To restore a name, open the entity settings and set the entity ID back to the expected value shown above. This message disappears at the next restart or reload once every ID matches again.\n\nIf the new names are intentional, update whatever references them and ignore this message."
+    },
+    "disabled_source_entities": {
+      "title": "Hub entities have no readable source",
+      "fix_flow": {
+        "step": {
+          "confirm": {
+            "title": "Enable {count} source entity/entities?",
+            "description": "Every configured source of {keys} hub entities is disabled, so those hub entities cannot produce a value at all — they are permanently unavailable.\n\nA disabled entity is not run by Home Assistant: it never gets a state, so the hub reads nothing from it, no matter which source is ranked first. Source integrations register most of their per-phase, per-pack and configuration registers disabled by default, so this is normal on a fresh install rather than something you broke.\n\nThese entities will be enabled in the entity registry:\n\n{entities}\n\nEnabling makes Home Assistant poll and record them again; you can disable them at any time under **Settings > Devices & Services > Entities**. The affected hub entities start reporting at the next discovery pass, without a restart."
+          }
+        }
+      }
+    },
+    "disabled_fallback_entities": {
+      "title": "Fallback source entities are disabled",
+      "fix_flow": {
+        "step": {
+          "confirm": {
+            "title": "Enable {count} source entity/entities?",
+            "description": "These entities are disabled, so the {keys} hub entities they feed have one fallback path fewer. Nothing is broken right now — another source is supplying those values.\n\nThe cost of leaving them off shows up during an outage: when the active source disappears, the hub has nothing to fall back to and the value goes unavailable until it returns.\n\nThese entities would be enabled:\n\n{entities}\n\nNothing changes for the current values; enabling only makes the fallback possible again. If you would rather not add the extra entities to your recorder, **ignore this issue** instead — the hub keeps working either way."
+          }
+        }
+      }
     }
   },
   "entity": {

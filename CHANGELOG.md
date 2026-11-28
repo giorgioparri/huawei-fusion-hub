@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+### Added
+
+- Disabled source entities are reported as two fixable repairs (`hub entities have no readable source` and `fallback source entities are disabled`), and each repair flow enables its entities through the entity registry after one confirmation.
+
 ### Fixed
 
 - Cumulative grid energy now falls back to the Modbus EMMA totals (`total_supply_from_grid`, `total_feed_in_to_grid`), which the classic power-meter registers do not provide on EMMA hardware.

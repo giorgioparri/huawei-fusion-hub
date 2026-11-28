@@ -104,6 +104,28 @@
     "entity_id_drift": {
       "title": "Gli entity ID dell'hub sono stati rinominati",
       "description": "{count} entity ID creati da Huawei Fusion Hub non seguono più la denominazione `hf_hub_*` assegnata dall'integrazione:\n\n{entities}\n\nLe entità continuano a funzionare, ma tutto ciò che le indirizza con l'ID originale - template, automazioni, dashboard, statistiche a lungo termine, query InfluxDB o Grafana - ora punta a un nome che non esiste.\n\nDi solito succede dopo aver rinominato un entity ID a mano, oppure dopo aver usato **Ricrea gli ID entità** su un dispositivo dell'hub mentre era impostato un nome personalizzato. Per ripristinare un nome, apri le impostazioni dell'entità e reimposta l'entity ID al valore atteso indicato sopra. Il messaggio sparisce al riavvio o al ricaricamento successivo, una volta che tutti gli ID corrispondono di nuovo.\n\nSe i nuovi nomi sono voluti, aggiorna ciò che li referenzia e ignora questo messaggio."
+    },
+    "disabled_source_entities": {
+      "title": "Entità hub senza sorgente leggibile",
+      "fix_flow": {
+        "step": {
+          "confirm": {
+            "title": "Abilitare {count} entità sorgente?",
+            "description": "Tutte le sorgenti configurate di {keys} entità hub sono disabilitate, quindi quelle entità non possono produrre alcun valore: restano permanentemente non disponibili.\n\nUn'entità disabilitata non viene eseguita da Home Assistant: non ha mai uno stato, quindi l'hub non ne legge nulla, indipendentemente dall'ordine di priorità. Le integrazioni sorgente registrano disabilitati per impostazione predefinita la maggior parte dei registri per fase, per modulo e di configurazione: è normale su un'installazione nuova, non è qualcosa che hai rotto.\n\nQueste entità verranno abilitate nel registro delle entità:\n\n{entities}\n\nAbilitarle fa riprendere a Home Assistant l'interrogazione e la registrazione; puoi disabilitarle in qualsiasi momento in **Impostazioni > Dispositivi e servizi > Entità**. Le entità hub interessate riprendono a riportare valori al passaggio di discovery successivo, senza riavvio."
+          }
+        }
+      }
+    },
+    "disabled_fallback_entities": {
+      "title": "Entità sorgente di fallback disabilitate",
+      "fix_flow": {
+        "step": {
+          "confirm": {
+            "title": "Abilitare {count} entità sorgente?",
+            "description": "Queste entità sono disabilitate, quindi le {keys} entità hub che alimentano hanno un percorso di fallback in meno. Al momento non manca nulla: un'altra sorgente fornisce quei valori.\n\nIl costo si vede durante un'interruzione: quando la sorgente attiva sparisce, l'hub non ha alternative e il valore resta non disponibile finché non torna.\n\nQueste entità verrebbero abilitate:\n\n{entities}\n\nI valori attuali non cambiano: abilitare rende di nuovo possibile il fallback. Se preferisci non aggiungere altre entità al recorder, **ignora questa segnalazione**: l'hub funziona comunque."
+          }
+        }
+      }
     }
   },
   "entity": {
