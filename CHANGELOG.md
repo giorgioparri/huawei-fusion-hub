@@ -6,14 +6,18 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+## [0.11.0] - 2026-11-28
+
 ### Added
 
-- Disabled source entities are reported as two fixable repairs (`hub entities have no readable source` and `fallback source entities are disabled`), and each repair flow enables its entities through the entity registry after one confirmation.
+- Two repair issues now report source entities the hub maps but cannot read, because their integration ships them disabled: **Hub entities have no readable source** (those hub entities can never have a value) and **Fallback source entities are disabled** (the values work, but there is no failover during an outage). Each repair enables the listed entities after one confirmation and then disappears on its own; ignore the second one if you would rather not record the extra entities. Entities you disabled yourself are never reported. See [Disabled source entities](https://github.com/giorgioparri/huawei-fusion-hub#disabled-source-entities).
 
 ### Fixed
 
-- Cumulative grid energy now falls back to the Modbus EMMA totals (`total_supply_from_grid`, `total_feed_in_to_grid`), which the classic power-meter registers do not provide on EMMA hardware.
-- `battery_rated_capacity` now declares `measurement` (the only state class Home Assistant permits for `energy_storage`), and `meter_reactive_energy` is published as reactive energy in `varh` with `total` instead of as a text sensor.
+- On EMMA (Smart Assistant) plants, `grid_imported_energy` and `grid_exported_energy` now fall back to the Huawei Solar (Modbus) EMMA totals, so they no longer go unavailable during a FusionSolar cloud outage.
+- `meter_reactive_energy` is now a numeric reactive-energy sensor in `varh` with long-term statistics, instead of a text sensor; `battery_rated_capacity` now declares the `measurement` state class that Home Assistant requires for stored energy.
+
+Thanks to @Finkregh for every change in this release (#20, #21, #22, #23), and for testing them on a live EMMA installation.
 
 ## [0.10.0] - 2026-11-04
 
@@ -269,7 +273,8 @@ Home Assistant 2026.8 promoted entity ID renaming to a first-class action in the
 - Options flow to change priority and alert behavior without restart.
 - English and Italian translations.
 
-[Unreleased]: https://github.com/giorgioparri/huawei-fusion-hub/compare/v0.10.0...HEAD
+[Unreleased]: https://github.com/giorgioparri/huawei-fusion-hub/compare/v0.11.0...HEAD
+[0.11.0]: https://github.com/giorgioparri/huawei-fusion-hub/compare/v0.10.0...v0.11.0
 [0.10.0]: https://github.com/giorgioparri/huawei-fusion-hub/compare/v0.9.7...v0.10.0
 [0.9.7]: https://github.com/giorgioparri/huawei-fusion-hub/compare/v0.9.6...v0.9.7
 [0.9.6]: https://github.com/giorgioparri/huawei-fusion-hub/compare/v0.9.5...v0.9.6
